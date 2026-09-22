@@ -1,0 +1,34 @@
+[workspace]
+name = "smi-window-tracker"
+version = "0.1.0"
+description = "Design and offline foundation for the SMI Kapton-window lifetime IOC"
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+
+[dependencies]
+python = ">=3.12,<3.13"
+pip = ">=24"
+
+[pypi-dependencies]
+smi-window-tracker = { path = ".", editable = true }
+
+[feature.dev.dependencies]
+pytest = ">=8,<10"
+pytest-cov = ">=6,<8"
+hypothesis = ">=6,<7"
+ruff = ">=0.11,<1"
+
+[feature.dev.tasks]
+test = "pytest"
+coverage = "pytest --cov=smi_window_tracker --cov-branch --cov-report=term-missing --cov-fail-under=95"
+lint = "ruff check src tests"
+format-check = "ruff format --check src tests"
+check = { depends-on = ["lint", "format-check", "coverage"] }
+
+# Optional evaluation environment; the IOC framework is not yet selected.
+[feature.caproto.pypi-dependencies]
+caproto = ">=1.2,<2"
+
+[environments]
+default = { features = ["dev"], solve-group = "default" }
+caproto = { features = ["dev", "caproto"], solve-group = "default" }

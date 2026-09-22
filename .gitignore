@@ -1,0 +1,14 @@
+.pixi/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.hypothesis/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+*.egg-info/
+.coverage.*
+build/
+# Local runtime state; persistent production history belongs outside the source tree.
+softioc/state/

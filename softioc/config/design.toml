@@ -1,0 +1,105 @@
+# Design inputs, not a runnable live IOC configuration. See docs/ASSUMPTIONS.md.
+schema_version = 1
+implementation_stage = "offline-foundation"
+
+[pressure]
+pv = "XF:12IDC-VA:2{Det:300KW-TCG:7}P:Raw-I"
+units = "mbar"
+atmosphere_above_mbar = 700.0
+pumped_below_mbar = 0.01
+opposite_face = "atmosphere"
+timing_start = "downward_700_mbar_crossing"
+timing_definition = "qualified-pressure-v2"
+start_confirm_below_mbar = 500.0
+start_confirm_timeout_s = 120.0
+pumped_dwell_s = 5.0
+pumped_exit_above_mbar = 0.02
+pumped_time_start = "confirmation; no dwell backdating"
+candidate_history = "one pending crossing; discard expired candidates"
+milestones_below_mbar = [100.0, 10.0, 1.0, 0.1]
+
+[pump_comparison]
+baselines = ["fixed-early", "rolling-recent"]
+grouping = "window + normal-setup + timing-definition"
+slowdown_alarms = false
+# Proposed sizes, not yet accepted operational settings.
+proposed_early_cycles = 5
+proposed_recent_cycles = 20
+proposed_minimum_history = 5
+unusual_cycles = "annotate; explicit reason required for exclusion"
+
+[display]
+platform = "CS-Studio BOY"
+format = ".opi"
+implementation_directory = "frontend/ (repository root); may be extracted later"
+layout_specification = "../../docs/DISPLAY.md"
+resolution = "adjustable"
+
+[service]
+host = "shared Linux IOC server"
+maximum_expected_pump_cycles_per_hour = 1
+commit_interval_s = 1.0
+commit_pump_completion_immediately = true
+commit_window_change_before_acknowledgement = true
+restart_policy = "restore current window and history; rebaseline live inputs"
+
+[window_lifecycle]
+new_physical_windows_only = true
+arm_timeout_s = 60.0
+confirmation = "type current window ID + one-use token + explicit confirm"
+retain_retired_windows = true
+record_removal_reason = true
+exclude_current_from_retired_lifetime_averages = true
+
+[metrics]
+full_pump_cycles = true
+closures_reaching_vacuum = true
+beam_path_seconds = true
+closed_window_beam_seconds = true
+bpm_qualified_window_beam_seconds = true
+
+[beam]
+path = ["front_end", "mono", "BPM2", "photon_shutter", "BPM3", "fast_shutter", "attenuators", "sample", "GV6W", "SAXS_detector"]
+shortest_exposure_s = 0.1
+typical_minimum_exposure_s = 0.5
+fast_shutter_trigger_sources = ["EPICS", "hardware"]
+fast_shutter_pv_behavior = "expected to change for both sources; verify edge fidelity"
+attenuator_banks = "both adjacent, after fast shutter and before sample"
+
+[beam_presence]
+pv = "XF:12IDB-BI:2{EM:BPM3}SumX:MeanValue_RBV"
+threshold_native_units = 0.5
+comparator = ">"
+status = "provisional; verify units, polarity, noise and hysteresis"
+gates_upper_bound_exposure = false
+
+[exposure]
+model = "nominal-upper-bound-v1"
+unattenuated_photons_per_s = 1e13
+apply_attenuator_transmission = true
+sample_transmission_assumption = 1.0
+measured_flux_calibration = "future work"
+
+[energy]
+source = "bragg-readback-derived"
+candidate_pv = "XF:12ID:m65.RBV"
+hc_ev_angstrom = 12398.42
+si111_spacing_angstrom = 3.1293
+maximum_ev = 24000.0
+proposed_minimum_ev = 2100.0
+status = "24 keV ceiling confirmed; verify lower limit, readback units and angular offset"
+
+[unresolved]
+framework = "consult-controls"
+window_status_pv = "TBD"
+window_state_mapping = "TBD"
+front_end_shutter_pv = "TBD"
+minimum_energy_ev = "2100 proposed from supplied code; verify"
+bpm3_native_units = "TBD"
+fast_shutter_edge_fidelity = "verify every 0.1 s exposure is observable"
+window_thickness_um = "TBD"
+beam_footprint_mm2 = "TBD"
+clear_aperture_mm = "TBD"
+ambient_pressure_source = "TBD"
+ioc_prefix = "TBD"
+storage_path = "TBD"
