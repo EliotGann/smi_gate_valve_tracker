@@ -1,0 +1,1239 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<display typeId="org.csstudio.opibuilder.Display" version="1.0.0">
+  <name>KaptonMon - input states and vacuum watch (local CA)</name>
+  <width>1680</width>
+  <height>1190</height>
+  <show_grid>false</show_grid>
+  <macros>
+    <include_parent_macros>true</include_parent_macros>
+    <P>XF:12IDC-ES{KaptonMon:1}</P>
+  </macros>
+  <background_color>
+    <color red="245" green="245" blue="245" />
+  </background_color>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>title</name>
+    <x>20</x>
+    <y>20</y>
+    <width>1620</width>
+    <height>28</height>
+    <text>KaptonMon - input states and vacuum watch (local CA)</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>contract</name>
+    <x>20</x>
+    <y>60</y>
+    <width>450</width>
+    <height>28</height>
+    <pv_name>$(P)Version:Contract-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>hb_label</name>
+    <x>500</x>
+    <y>60</y>
+    <width>120</width>
+    <height>28</height>
+    <text>Heartbeat</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>heartbeat</name>
+    <x>630</x>
+    <y>60</y>
+    <width>160</width>
+    <height>28</height>
+    <pv_name>$(P)Heartbeat-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.ActionButton" version="1.0.0">
+    <name>open_window_overview.opi</name>
+    <x>1390</x>
+    <y>60</y>
+    <width>240</width>
+    <height>28</height>
+    <text>Main monitor</text>
+    <actions hook="false" hook_all="false">
+      <action type="OPEN_DISPLAY">
+        <path>window_overview.opi</path>
+        <mode>0</mode>
+        <macros>
+          <include_parent_macros>true</include_parent_macros>
+        </macros>
+      </action>
+    </actions>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>header_Input</name>
+    <x>20</x>
+    <y>110</y>
+    <width>255</width>
+    <height>28</height>
+    <text>Input</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>header_Raw</name>
+    <x>290</x>
+    <y>110</y>
+    <width>220</width>
+    <height>28</height>
+    <text>Raw</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>header_State / relevance</name>
+    <x>530</x>
+    <y>110</y>
+    <width>340</width>
+    <height>28</height>
+    <text>State / relevance</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>header_Connected</name>
+    <x>890</x>
+    <y>110</y>
+    <width>100</width>
+    <height>28</height>
+    <text>Connected</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>header_Severity</name>
+    <x>1020</x>
+    <y>110</y>
+    <width>100</width>
+    <height>28</height>
+    <text>Severity</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>header_Last read</name>
+    <x>1150</x>
+    <y>110</y>
+    <width>140</width>
+    <height>28</height>
+    <text>Last read</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>header_Last observed value change</name>
+    <x>1300</x>
+    <y>110</y>
+    <width>360</width>
+    <height>28</height>
+    <text>Last observed value change</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>source_header</name>
+    <x>1150</x>
+    <y>137</y>
+    <width>510</width>
+    <height>28</height>
+    <text>IOC source time below (may be unset)</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>pressure_label</name>
+    <x>20</x>
+    <y>175</y>
+    <width>255</width>
+    <height>28</height>
+    <text>Pump-down TCG:9 (mbar)</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>pressureText</name>
+    <x>290</x>
+    <y>175</y>
+    <width>220</width>
+    <height>28</height>
+    <pv_name>$(P)Pressure:Downstream:RawText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>pressureState</name>
+    <x>530</x>
+    <y>175</y>
+    <width>340</width>
+    <height>28</height>
+    <pv_name>$(P)Pressure:Downstream:State-Sts</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>pressureConnected</name>
+    <x>890</x>
+    <y>175</y>
+    <width>100</width>
+    <height>28</height>
+    <pv_name>$(P)Pressure:Downstream:Conn-Sts</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>pressureSeverity</name>
+    <x>1020</x>
+    <y>175</y>
+    <width>100</width>
+    <height>28</height>
+    <pv_name>$(P)Pressure:Downstream:Severity-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>pressureReadAge</name>
+    <x>1150</x>
+    <y>175</y>
+    <width>140</width>
+    <height>28</height>
+    <pv_name>$(P)Pressure:Downstream:ReadAgeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>pressureChangeAge</name>
+    <x>1300</x>
+    <y>175</y>
+    <width>360</width>
+    <height>28</height>
+    <pv_name>$(P)Pressure:Downstream:ChangeAgeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>pressureTimeText</name>
+    <x>1150</x>
+    <y>202</y>
+    <width>510</width>
+    <height>28</height>
+    <pv_name>$(P)Pressure:Downstream:SourceTimeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>chamber_pressure_label</name>
+    <x>20</x>
+    <y>235</y>
+    <width>255</width>
+    <height>28</height>
+    <text>WAXS sample TCG:7 (mbar)</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>chamber_pressureText</name>
+    <x>290</x>
+    <y>235</y>
+    <width>220</width>
+    <height>28</height>
+    <pv_name>$(P)Pressure:Sample:RawText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>chamber_pressureState</name>
+    <x>530</x>
+    <y>235</y>
+    <width>340</width>
+    <height>28</height>
+    <pv_name>$(P)Pressure:Sample:State-Sts</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>chamber_pressureConnected</name>
+    <x>890</x>
+    <y>235</y>
+    <width>100</width>
+    <height>28</height>
+    <pv_name>$(P)Pressure:Sample:Conn-Sts</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>chamber_pressureSeverity</name>
+    <x>1020</x>
+    <y>235</y>
+    <width>100</width>
+    <height>28</height>
+    <pv_name>$(P)Pressure:Sample:Severity-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>chamber_pressureReadAge</name>
+    <x>1150</x>
+    <y>235</y>
+    <width>140</width>
+    <height>28</height>
+    <pv_name>$(P)Pressure:Sample:ReadAgeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>chamber_pressureChangeAge</name>
+    <x>1300</x>
+    <y>235</y>
+    <width>360</width>
+    <height>28</height>
+    <pv_name>$(P)Pressure:Sample:ChangeAgeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>chamber_pressureTimeText</name>
+    <x>1150</x>
+    <y>262</y>
+    <width>510</width>
+    <height>28</height>
+    <pv_name>$(P)Pressure:Sample:SourceTimeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>fast_shutter_label</name>
+    <x>20</x>
+    <y>295</y>
+    <width>255</width>
+    <height>28</height>
+    <text>Shutter:Fast</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>fast_shutterText</name>
+    <x>290</x>
+    <y>295</y>
+    <width>220</width>
+    <height>28</height>
+    <pv_name>$(P)Shutter:Fast:RawText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>fast_shutterState</name>
+    <x>530</x>
+    <y>295</y>
+    <width>340</width>
+    <height>28</height>
+    <pv_name>$(P)Shutter:Fast:State-Sts</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>fast_shutterConnected</name>
+    <x>890</x>
+    <y>295</y>
+    <width>100</width>
+    <height>28</height>
+    <pv_name>$(P)Shutter:Fast:Conn-Sts</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>fast_shutterSeverity</name>
+    <x>1020</x>
+    <y>295</y>
+    <width>100</width>
+    <height>28</height>
+    <pv_name>$(P)Shutter:Fast:Severity-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>fast_shutterReadAge</name>
+    <x>1150</x>
+    <y>295</y>
+    <width>140</width>
+    <height>28</height>
+    <pv_name>$(P)Shutter:Fast:ReadAgeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>fast_shutterChangeAge</name>
+    <x>1300</x>
+    <y>295</y>
+    <width>360</width>
+    <height>28</height>
+    <pv_name>$(P)Shutter:Fast:ChangeAgeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>fast_shutterTimeText</name>
+    <x>1150</x>
+    <y>322</y>
+    <width>510</width>
+    <height>28</height>
+    <pv_name>$(P)Shutter:Fast:SourceTimeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>photon_shutter_label</name>
+    <x>20</x>
+    <y>355</y>
+    <width>255</width>
+    <height>28</height>
+    <text>Shutter:Photon</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>photon_shutterText</name>
+    <x>290</x>
+    <y>355</y>
+    <width>220</width>
+    <height>28</height>
+    <pv_name>$(P)Shutter:Photon:RawText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>photon_shutterState</name>
+    <x>530</x>
+    <y>355</y>
+    <width>340</width>
+    <height>28</height>
+    <pv_name>$(P)Shutter:Photon:State-Sts</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>photon_shutterConnected</name>
+    <x>890</x>
+    <y>355</y>
+    <width>100</width>
+    <height>28</height>
+    <pv_name>$(P)Shutter:Photon:Conn-Sts</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>photon_shutterSeverity</name>
+    <x>1020</x>
+    <y>355</y>
+    <width>100</width>
+    <height>28</height>
+    <pv_name>$(P)Shutter:Photon:Severity-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>photon_shutterReadAge</name>
+    <x>1150</x>
+    <y>355</y>
+    <width>140</width>
+    <height>28</height>
+    <pv_name>$(P)Shutter:Photon:ReadAgeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>photon_shutterChangeAge</name>
+    <x>1300</x>
+    <y>355</y>
+    <width>360</width>
+    <height>28</height>
+    <pv_name>$(P)Shutter:Photon:ChangeAgeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>photon_shutterTimeText</name>
+    <x>1150</x>
+    <y>382</y>
+    <width>510</width>
+    <height>28</height>
+    <pv_name>$(P)Shutter:Photon:SourceTimeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>front_end_shutter_label</name>
+    <x>20</x>
+    <y>415</y>
+    <width>255</width>
+    <height>28</height>
+    <text>Shutter:FE</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>front_end_shutterText</name>
+    <x>290</x>
+    <y>415</y>
+    <width>220</width>
+    <height>28</height>
+    <pv_name>$(P)Shutter:FE:RawText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>front_end_shutterState</name>
+    <x>530</x>
+    <y>415</y>
+    <width>340</width>
+    <height>28</height>
+    <pv_name>$(P)Shutter:FE:State-Sts</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>front_end_shutterConnected</name>
+    <x>890</x>
+    <y>415</y>
+    <width>100</width>
+    <height>28</height>
+    <pv_name>$(P)Shutter:FE:Conn-Sts</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>front_end_shutterSeverity</name>
+    <x>1020</x>
+    <y>415</y>
+    <width>100</width>
+    <height>28</height>
+    <pv_name>$(P)Shutter:FE:Severity-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>front_end_shutterReadAge</name>
+    <x>1150</x>
+    <y>415</y>
+    <width>140</width>
+    <height>28</height>
+    <pv_name>$(P)Shutter:FE:ReadAgeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>front_end_shutterChangeAge</name>
+    <x>1300</x>
+    <y>415</y>
+    <width>360</width>
+    <height>28</height>
+    <pv_name>$(P)Shutter:FE:ChangeAgeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>front_end_shutterTimeText</name>
+    <x>1150</x>
+    <y>442</y>
+    <width>510</width>
+    <height>28</height>
+    <pv_name>$(P)Shutter:FE:SourceTimeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>valve_label</name>
+    <x>20</x>
+    <y>475</y>
+    <width>255</width>
+    <height>28</height>
+    <text>Valve:Pos</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>valveText</name>
+    <x>290</x>
+    <y>475</y>
+    <width>220</width>
+    <height>28</height>
+    <pv_name>$(P)Valve:Pos:RawText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>valveState</name>
+    <x>530</x>
+    <y>475</y>
+    <width>340</width>
+    <height>28</height>
+    <pv_name>$(P)Valve:Pos:State-Sts</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>valveConnected</name>
+    <x>890</x>
+    <y>475</y>
+    <width>100</width>
+    <height>28</height>
+    <pv_name>$(P)Valve:Pos:Conn-Sts</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>valveSeverity</name>
+    <x>1020</x>
+    <y>475</y>
+    <width>100</width>
+    <height>28</height>
+    <pv_name>$(P)Valve:Pos:Severity-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>valveReadAge</name>
+    <x>1150</x>
+    <y>475</y>
+    <width>140</width>
+    <height>28</height>
+    <pv_name>$(P)Valve:Pos:ReadAgeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>valveChangeAge</name>
+    <x>1300</x>
+    <y>475</y>
+    <width>360</width>
+    <height>28</height>
+    <pv_name>$(P)Valve:Pos:ChangeAgeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>valveTimeText</name>
+    <x>1150</x>
+    <y>502</y>
+    <width>510</width>
+    <height>28</height>
+    <pv_name>$(P)Valve:Pos:SourceTimeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>bragg_label</name>
+    <x>20</x>
+    <y>535</y>
+    <width>255</width>
+    <height>28</height>
+    <text>Mono:Bragg</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>braggText</name>
+    <x>290</x>
+    <y>535</y>
+    <width>220</width>
+    <height>28</height>
+    <pv_name>$(P)Mono:Bragg:RawText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>braggState</name>
+    <x>530</x>
+    <y>535</y>
+    <width>340</width>
+    <height>28</height>
+    <pv_name>$(P)Mono:Bragg:State-Sts</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>braggConnected</name>
+    <x>890</x>
+    <y>535</y>
+    <width>100</width>
+    <height>28</height>
+    <pv_name>$(P)Mono:Bragg:Conn-Sts</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>braggSeverity</name>
+    <x>1020</x>
+    <y>535</y>
+    <width>100</width>
+    <height>28</height>
+    <pv_name>$(P)Mono:Bragg:Severity-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>braggReadAge</name>
+    <x>1150</x>
+    <y>535</y>
+    <width>140</width>
+    <height>28</height>
+    <pv_name>$(P)Mono:Bragg:ReadAgeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>braggChangeAge</name>
+    <x>1300</x>
+    <y>535</y>
+    <width>360</width>
+    <height>28</height>
+    <pv_name>$(P)Mono:Bragg:ChangeAgeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>braggTimeText</name>
+    <x>1150</x>
+    <y>562</y>
+    <width>510</width>
+    <height>28</height>
+    <pv_name>$(P)Mono:Bragg:SourceTimeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>ring_current_label</name>
+    <x>20</x>
+    <y>595</y>
+    <width>255</width>
+    <height>28</height>
+    <text>Ring:Current</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>ring_currentText</name>
+    <x>290</x>
+    <y>595</y>
+    <width>220</width>
+    <height>28</height>
+    <pv_name>$(P)Ring:Current:RawText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>ring_currentState</name>
+    <x>530</x>
+    <y>595</y>
+    <width>340</width>
+    <height>28</height>
+    <pv_name>$(P)Ring:Current:State-Sts</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>ring_currentConnected</name>
+    <x>890</x>
+    <y>595</y>
+    <width>100</width>
+    <height>28</height>
+    <pv_name>$(P)Ring:Current:Conn-Sts</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>ring_currentSeverity</name>
+    <x>1020</x>
+    <y>595</y>
+    <width>100</width>
+    <height>28</height>
+    <pv_name>$(P)Ring:Current:Severity-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>ring_currentReadAge</name>
+    <x>1150</x>
+    <y>595</y>
+    <width>140</width>
+    <height>28</height>
+    <pv_name>$(P)Ring:Current:ReadAgeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>ring_currentChangeAge</name>
+    <x>1300</x>
+    <y>595</y>
+    <width>360</width>
+    <height>28</height>
+    <pv_name>$(P)Ring:Current:ChangeAgeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>ring_currentTimeText</name>
+    <x>1150</x>
+    <y>622</y>
+    <width>510</width>
+    <height>28</height>
+    <pv_name>$(P)Ring:Current:SourceTimeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>ring_mode_label</name>
+    <x>20</x>
+    <y>655</y>
+    <width>255</width>
+    <height>28</height>
+    <text>Ring:Mode</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>ring_modeText</name>
+    <x>290</x>
+    <y>655</y>
+    <width>220</width>
+    <height>28</height>
+    <pv_name>$(P)Ring:Mode:RawText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>ring_modeState</name>
+    <x>530</x>
+    <y>655</y>
+    <width>340</width>
+    <height>28</height>
+    <pv_name>$(P)Ring:Mode:State-Sts</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>ring_modeConnected</name>
+    <x>890</x>
+    <y>655</y>
+    <width>100</width>
+    <height>28</height>
+    <pv_name>$(P)Ring:Mode:Conn-Sts</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>ring_modeSeverity</name>
+    <x>1020</x>
+    <y>655</y>
+    <width>100</width>
+    <height>28</height>
+    <pv_name>$(P)Ring:Mode:Severity-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>ring_modeReadAge</name>
+    <x>1150</x>
+    <y>655</y>
+    <width>140</width>
+    <height>28</height>
+    <pv_name>$(P)Ring:Mode:ReadAgeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>ring_modeChangeAge</name>
+    <x>1300</x>
+    <y>655</y>
+    <width>360</width>
+    <height>28</height>
+    <pv_name>$(P)Ring:Mode:ChangeAgeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>ring_modeTimeText</name>
+    <x>1150</x>
+    <y>682</y>
+    <width>510</width>
+    <height>28</height>
+    <pv_name>$(P)Ring:Mode:SourceTimeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>bpm3_sum_x_label</name>
+    <x>20</x>
+    <y>715</y>
+    <width>255</width>
+    <height>28</height>
+    <text>BPM3:SumX</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>bpm3_sum_xText</name>
+    <x>290</x>
+    <y>715</y>
+    <width>220</width>
+    <height>28</height>
+    <pv_name>$(P)BPM3:SumX:RawText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>bpm3_sum_xState</name>
+    <x>530</x>
+    <y>715</y>
+    <width>340</width>
+    <height>28</height>
+    <pv_name>$(P)BPM3:SumX:State-Sts</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>bpm3_sum_xConnected</name>
+    <x>890</x>
+    <y>715</y>
+    <width>100</width>
+    <height>28</height>
+    <pv_name>$(P)BPM3:SumX:Conn-Sts</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>bpm3_sum_xSeverity</name>
+    <x>1020</x>
+    <y>715</y>
+    <width>100</width>
+    <height>28</height>
+    <pv_name>$(P)BPM3:SumX:Severity-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>bpm3_sum_xReadAge</name>
+    <x>1150</x>
+    <y>715</y>
+    <width>140</width>
+    <height>28</height>
+    <pv_name>$(P)BPM3:SumX:ReadAgeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>bpm3_sum_xChangeAge</name>
+    <x>1300</x>
+    <y>715</y>
+    <width>360</width>
+    <height>28</height>
+    <pv_name>$(P)BPM3:SumX:ChangeAgeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>bpm3_sum_xTimeText</name>
+    <x>1150</x>
+    <y>742</y>
+    <width>510</width>
+    <height>28</height>
+    <pv_name>$(P)BPM3:SumX:SourceTimeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>range_note</name>
+    <x>20</x>
+    <y>790</y>
+    <width>1600</width>
+    <height>28</height>
+    <text>Last read includes monitors/health reads; last change is observed here, not IOC time. Startup/reconnect sets a baseline. 'Just now' lasts 5 s.</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>watch_title</name>
+    <x>20</x>
+    <y>840</y>
+    <width>1600</width>
+    <height>28</height>
+    <text>Closed-window downstream vacuum watch (live, not a leak diagnosis)</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>watch_label_Status</name>
+    <x>20</x>
+    <y>875</y>
+    <width>300</width>
+    <height>28</height>
+    <text>Status</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>watch_Status</name>
+    <x>330</x>
+    <y>875</y>
+    <width>490</width>
+    <height>28</height>
+    <pv_name>$(P)VacWatch:State-Sts</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>watch_label_Baseline</name>
+    <x>840</x>
+    <y>875</y>
+    <width>300</width>
+    <height>28</height>
+    <text>Downstream baseline (mbar)</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>watch_Baseline</name>
+    <x>1150</x>
+    <y>875</y>
+    <width>490</width>
+    <height>28</height>
+    <pv_name>$(P)VacWatch:Baseline-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>watch_label_Change</name>
+    <x>20</x>
+    <y>909</y>
+    <width>300</width>
+    <height>28</height>
+    <text>Downstream change (mbar)</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>watch_Change</name>
+    <x>330</x>
+    <y>909</y>
+    <width>490</width>
+    <height>28</height>
+    <pv_name>$(P)VacWatch:Change-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>watch_label_Rate</name>
+    <x>840</x>
+    <y>909</y>
+    <width>300</width>
+    <height>28</height>
+    <text>Recent signed rate (mbar/s)</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>watch_Rate</name>
+    <x>1150</x>
+    <y>909</y>
+    <width>490</width>
+    <height>28</height>
+    <pv_name>$(P)VacWatch:Rate-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>watch_label_Span</name>
+    <x>20</x>
+    <y>943</y>
+    <width>300</width>
+    <height>28</height>
+    <text>Rate span (s, up to 30)</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>watch_Span</name>
+    <x>330</x>
+    <y>943</y>
+    <width>490</width>
+    <height>28</height>
+    <pv_name>$(P)VacWatch:Span-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>watch_label_Elapsed</name>
+    <x>840</x>
+    <y>943</y>
+    <width>300</width>
+    <height>28</height>
+    <text>Observation elapsed (s)</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>watch_Elapsed</name>
+    <x>1150</x>
+    <y>943</y>
+    <width>490</width>
+    <height>28</height>
+    <pv_name>$(P)VacWatch:Elapsed-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>watch_label_UpstreamChange</name>
+    <x>20</x>
+    <y>977</y>
+    <width>300</width>
+    <height>28</height>
+    <text>Sample pressure change (mbar)</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>watch_UpstreamChange</name>
+    <x>330</x>
+    <y>977</y>
+    <width>490</width>
+    <height>28</height>
+    <pv_name>$(P)VacWatch:SampleChange-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>watch_label_DeltaP</name>
+    <x>840</x>
+    <y>977</y>
+    <width>300</width>
+    <height>28</height>
+    <text>Absolute pressure difference (mbar)</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>watch_DeltaP</name>
+    <x>1150</x>
+    <y>977</y>
+    <width>490</width>
+    <height>28</height>
+    <pv_name>$(P)Pressure:Diff-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>watch_note</name>
+    <x>20</x>
+    <y>1045</y>
+    <width>1630</width>
+    <height>28</height>
+    <text>Positive rate = worsening vacuum. NaN = unavailable. Zero/invalid/gaps reset the watch. Recorder saves raw events and snapshots.</text>
+  </widget>
+</display>

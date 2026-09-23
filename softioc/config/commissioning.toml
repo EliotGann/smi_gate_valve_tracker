@@ -1,0 +1,43 @@
+# Read-only commissioning observer configuration.
+# Leave uncertain inputs without a pv field until the exact name is verified.
+# Raw observation does not imply verified polarity. No source PV writes are made.
+
+[inputs.pressure]
+pv = "XF:12IDC-VA:2{B1:WAXS-TCG:9}P-I"
+description = "Pump-down side (formerly MAXS), mbar. Primary pump-cycle pressure; operator confirms P-I remains numeric and reports 0E0 below gauge threshold (under-range, not exact zero)."
+
+[inputs.chamber_pressure]
+pv = "XF:12IDC-VA:2{Det:300KW-TCG:7}P:Raw-I"
+description = "WAXS sample chamber, mbar; reading confirmed correct. Opposite face of window from TCG:9, not a fixed atmosphere assumption."
+
+[inputs.fast_shutter]
+pv = "XF:12IDA-BI:2{EM:BPM1}DAC3"
+description = "Operator confirmed: 7=closed, 0=open. Timing reported adequate (less than approximately 0.1 s); other values unknown."
+
+[inputs.ring_current]
+pv = "SR:C03-BI{DCCT:1}I:Real-I"
+description = "Storage-ring current readback."
+
+[inputs.ring_mode]
+pv = "SR-OPS{}Mode-Sts"
+description = "Storage-ring mode; inspect enum/text values during commissioning."
+
+[inputs.bragg]
+pv = "XF:12ID:m65.RBV"
+description = "Bragg-angle readback confirmed correct by operator during commissioning."
+
+[inputs.bpm3_sum_x]
+pv = "XF:12IDB-BI:2{EM:BPM3}SumX:MeanValue_RBV"
+description = "Raw diagnostic only; disregard for beam presence/timers. Reads 0.6 with no beam, invalidating provisional 0.5 threshold."
+
+[inputs.valve]
+pv = "XF:12IDC-VA:2{BT:WAXS-GV:6W}Pos-Sts"
+description = "Operator convention: 1=open, 0=not open (assumed closed for tracking). Other values unknown."
+
+[inputs.front_end_shutter]
+pv = "XF:12ID-PPS{Sh:FE}Sts:Cls-Sts"
+description = "Operator convention: 1=closed, 0=not closed (treated as open for tracking). Other values unknown."
+
+[inputs.photon_shutter]
+pv = "XF:12IDA-PPS:2{PSh}Pos-Sts"
+description = "Operator convention: 1=closed, 0=not closed (treated as open for tracking). Other values unknown."

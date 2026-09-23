@@ -8,11 +8,15 @@ version = "0.1.0"
 description = "Offline monitoring primitives for the SMI Kapton-window lifetime IOC"
 requires-python = ">=3.12"
 
+[project.scripts]
+smi-window-commissioning = "smi_window_tracker.commissioning:main"
+smi-kapton-monitor = "smi_window_tracker.commissioning:beamtime_main"
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/smi_window_tracker"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests", "../frontend/tests"]
 addopts = "-ra --strict-markers"
 
 [tool.ruff]

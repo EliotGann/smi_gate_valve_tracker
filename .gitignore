@@ -12,3 +12,8 @@ dist/
 build/
 # Local runtime state; persistent production history belongs outside the source tree.
 softioc/state/
+.sqlite
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite.lock

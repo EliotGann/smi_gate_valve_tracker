@@ -3,11 +3,15 @@ schema_version = 1
 implementation_stage = "offline-foundation"
 
 [pressure]
-pv = "XF:12IDC-VA:2{Det:300KW-TCG:7}P:Raw-I"
+pv = "XF:12IDC-VA:2{B1:WAXS-TCG:9}P-I"
+role = "pump-down side (formerly MAXS)"
+opposite_pv = "XF:12IDC-VA:2{Det:300KW-TCG:7}P:Raw-I"
 units = "mbar"
 atmosphere_above_mbar = 700.0
 pumped_below_mbar = 0.01
-opposite_face = "atmosphere"
+opposite_face = "measured WAXS sample chamber pressure, mbar"
+loading_definition = "abs(TCG9 pump-down pressure - TCG7 sample chamber pressure), window closed"
+under_range_policy = "P-I reports numeric 0E0 below gauge threshold; retain as under-range, exact bound TBD; no text parsing required"
 timing_start = "downward_700_mbar_crossing"
 timing_definition = "qualified-pressure-v2"
 start_confirm_below_mbar = 500.0
@@ -56,21 +60,20 @@ full_pump_cycles = true
 closures_reaching_vacuum = true
 beam_path_seconds = true
 closed_window_beam_seconds = true
-bpm_qualified_window_beam_seconds = true
+bpm_qualified_window_beam_seconds = false
 
 [beam]
 path = ["front_end", "mono", "BPM2", "photon_shutter", "BPM3", "fast_shutter", "attenuators", "sample", "GV6W", "SAXS_detector"]
 shortest_exposure_s = 0.1
 typical_minimum_exposure_s = 0.5
 fast_shutter_trigger_sources = ["EPICS", "hardware"]
-fast_shutter_pv_behavior = "expected to change for both sources; verify edge fidelity"
+fast_shutter_pv_behavior = "operator reports timing adequate, less than approximately 0.1 s; no quantified edge-loss test claimed"
 attenuator_banks = "both adjacent, after fast shutter and before sample"
 
 [beam_presence]
 pv = "XF:12IDB-BI:2{EM:BPM3}SumX:MeanValue_RBV"
-threshold_native_units = 0.5
-comparator = ">"
-status = "provisional; verify units, polarity, noise and hysteresis"
+enabled = false
+status = "disabled: SumX reads 0.6 with no beam; raw diagnostic only, no accepted threshold"
 gates_upper_bound_exposure = false
 
 [exposure]
@@ -87,19 +90,38 @@ hc_ev_angstrom = 12398.42
 si111_spacing_angstrom = 3.1293
 maximum_ev = 24000.0
 proposed_minimum_ev = 2100.0
-status = "24 keV ceiling confirmed; verify lower limit, readback units and angular offset"
+status = "Bragg readback confirmed correct by operator; 24 keV ceiling confirmed, lower limit remains provisional"
+
+# Confirmed monitoring conventions, not independent endpoint confirmation.
+# The current observer displays raw codes; these mappings are for the reducer.
+[state_mapping.valve]
+pv = "XF:12IDC-VA:2{BT:WAXS-GV:6W}Pos-Sts"
+open = 1
+closed = 0
+interpretation = "not open treated as closed per operator; all other codes unknown"
+
+[state_mapping.fast_shutter]
+open = 0
+closed = 7
+
+[state_mapping.photon_shutter]
+open = 0
+closed = 1
+interpretation = "not closed treated as open per operator; all other codes unknown"
+
+[state_mapping.front_end_shutter]
+pv = "XF:12ID-PPS{Sh:FE}Sts:Cls-Sts"
+open = 0
+closed = 1
+interpretation = "not closed treated as open per operator; all other codes unknown"
 
 [unresolved]
 framework = "consult-controls"
-window_status_pv = "TBD"
-window_state_mapping = "TBD"
-front_end_shutter_pv = "TBD"
 minimum_energy_ev = "2100 proposed from supplied code; verify"
 bpm3_native_units = "TBD"
-fast_shutter_edge_fidelity = "verify every 0.1 s exposure is observable"
 window_thickness_um = "TBD"
 beam_footprint_mm2 = "TBD"
 clear_aperture_mm = "TBD"
-ambient_pressure_source = "TBD"
+pressure_under_range_metadata = "P-I numeric zero sentinel confirmed; actual gauge lower reporting threshold TBD"
 ioc_prefix = "TBD"
 storage_path = "TBD"
