@@ -5,21 +5,21 @@ are intentionally specific; unknown answers can remain open until commissioning.
 
 ## Next high-impact answers
 
-1. What is the **exact GV6W status PV**, and which raw values positively confirm
-   closed/open/moving/fault? Does “closed” always place the Kapton in the beam?
-2. What is the **front-end shutter status PV** and its enum mapping? Confirm the
-   photon-shutter readback suffix and mapping too.
+1. GV6W PV and binary convention are resolved in PVS.md (1=open, 0 assumed closed).
+   Does “closed” always place the Kapton in the beam?
+2. FE/photon shutter PVs and binary conventions are resolved (1=closed, 0 assumed
+   open). Additional opposite-status PVs are not requested for this scope.
 3. Exposures are confirmed as rarely **0.1 s**, generally **>=0.5 s**, triggered
    via EPICS or hardware, with the PV expected to change in both cases. What is
    the typical repetition rate? Verify edge fidelity and physical-position meaning.
-4. **SumX selected**, with provisional `>0.5` native-unit beam-present threshold.
-   What are the actual units, dark noise and sensible hysteresis? Range and polarity?
+4. **SumX inference deferred**: 0.6 observed without beam. Revisit calibration,
+   dark noise and units later; no threshold is accepted now.
 5. Both attenuator banks are confirmed adjacent after the fast shutter and before
    the sample. Where are additional slits/blockers, if relevant to later refinement?
 6. What thickness/grade of Kapton, number of layers, clear aperture, incidence
    angle, beam dimensions/profile and position stability should be assumed?
-7. **No direct photon-energy PV**. Verify `XF:12ID:m65.RBV` degree units, offset
-   and Si(111) conversion. Upper range is confirmed **24 keV**; verify 2.1 keV lower limit.
+7. **Bragg readback confirmed correct**. Upper range is confirmed **24 keV**;
+   verify 2.1 keV lower limit.
 
 ## Counting and pump-down details
 
@@ -47,8 +47,9 @@ are intentionally specific; unknown answers can remain open until commissioning.
 
 ## Loading and beam-model details
 
-17. Is ambient pressure measured? Otherwise which nominal value should be used?
-    What differential-pressure threshold should define “loaded” time?
+17. Both window faces are measured: TCG:9 pump-down and TCG:7 sample, mbar.
+    What differential-pressure threshold should define “loaded” time? What lower
+    gauge threshold corresponds to the numeric 0E0 sentinel in `P-I`?
 18. Is there a temperature PV near the window? Should loaded+irradiated overlap
     time and differential-pressure bins be retained for future creep models?
 19. What stored-current threshold and ring modes define availability? Should an

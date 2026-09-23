@@ -1,5 +1,10 @@
 # CS-Studio BOY screen plan (frontend component)
 
+Current commissioning screen: `frontend/opi/commissioning_overview.opi`, targeting
+CS-Studio 4.6.1. Pump-down pressure is TCG:9; sample pressure is WAXS TCG:7, both
+mbar. SumX is labeled unused diagnostic: beam inference and BPM-qualified hours
+in the future wireframe below are disabled pending calibration.
+
 ## Platform and ownership
 
 Target **legacy Eclipse CS-Studio BOY `.opi`**, confirmed by the user. Build the

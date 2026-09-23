@@ -7,9 +7,15 @@ nominal upper-bound interaction estimate.
 
 ## Current status
 
+**Local beamtime app:** see [startup and OPI instructions](docs/BEAMTIME.md).
+`smi-kapton-monitor` serves read-only `XF:12IDC-ES{KaptonMon:1}...` PVs on
+loopback only, journals live inputs to SQLite, restores counters/timers on restart,
+and supplies `frontend/opi/window_overview.opi`. Exposure/material calibration
+and installation-maintenance workflows remain incomplete.
+
 The user selected **design and foundation** for this pass. Implemented here:
 
-- Pixi development environment and optional caproto evaluation environment.
+- Pixi development environment and a commissioning-only read-only caproto observer.
 - Pure Python pump-cycle/valve counters, interval accounting, Bragg-energy
   conversion, beam-presence thresholding, and upper-bound/slab physics helpers.
 - Offline example-based and property-based tests.
@@ -18,8 +24,9 @@ The user selected **design and foundation** for this pass. Implemented here:
   expiring/one-use window-change confirmation guard.
 - Detailed implementation plan, PV inventory, assumptions, physics, and test plan.
 
-The live CA adapters, IOC PV server, durable database, material tables, and service
-deployment are subsequent milestones. No command currently starts a live IOC.
+The commissioning observer remains a diagnostic-only option. The beamtime app
+adds a reducer and durable SQLite recording. Material tables and supervised
+production service deployment remain subsequent milestones.
 The supplied Bluesky files in `docs/examples/bluesky/` are reference material; the package does
 not import them or depend on a running Bluesky session.
 
@@ -70,9 +77,11 @@ design artifact rather than a deployable IOC configuration.
 9. [Shared Linux service, resource budgets and recovery](docs/SERVICE.md)
 10. [Window replacement and lifetime history](docs/WINDOW_LIFECYCLE.md)
 
-Confirmed essentials: WAXS pressure is in mbar; atmosphere qualification is
-`P > 700 mbar`; pumped qualification is `P < 0.01 mbar`; one side of the window
-is at atmosphere. Retain both completed full pump cycles and closures reaching
+Commissioning correction: TCG:9 `P-I` (formerly MAXS) is the pump-down side;
+TCG:7 WAXS is the sample chamber. Both are mbar; loading uses their measured
+pressure difference. TCG:9 `P-I` reports numeric 0E0 below gauge range.
+Atmosphere qualification is `P > 700 mbar`; pumped qualification is `P < 0.01 mbar`.
+Retain both completed full pump cycles and closures reaching
 vacuum, and both beam-path time and closed-window exposure time. Framework
 selection awaits discussion with controls.
 
@@ -83,8 +92,8 @@ uses the qualifying crossing timestamps; pumped-time integration starts at confi
 
 The initial exposure model uses **1e13 photons/s × attenuator transmission**,
 gated by ring, all three shutters and closed window, ignoring sample absorption.
-BPM3 **SumX > 0.5** is a provisional beam-presence diagnostic and separate timer;
-it does not gate or scale the single upper-bound exposure estimate. Energy is
+BPM3 beam inference and its separate timer are disabled: SumX reads 0.6 without
+beam. Raw diagnostics remain visible; BPM3 does not gate or scale the exposure estimate. Energy is
 derived from the Bragg readback. Fast-shutter timing must resolve rare **0.1 s**
 exposures (usually >=0.5 s). BPM3 photon-flux calibration is future work.
 

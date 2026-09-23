@@ -8,13 +8,15 @@ Keep the direct observables before attempting a material-lifetime model:
 - Full atmosphere-to-vacuum cycle count and pressure-vs-time curves.
 - Closed-and-pumped seconds: `integral closed * pumped_latch dt`. Enter after
   5 s below 0.01 mbar, exit strictly above 0.02; exclude the qualification dwell.
-- Differential-pressure loading: `dP = abs(P_atmosphere - P_chamber)` in mbar.
+- Differential-pressure loading: `dP = abs(P_TCG9_pumpdown - P_TCG7_sample)` in mbar.
 - Loaded seconds: `integral closed * (dP > configured_threshold) dt`.
 - Pressure-time exposure: `integral closed * dP dt` in mbar s.
 
-The ambient face is confirmed to be at atmosphere. A barometer is preferable to
-a fixed nominal pressure; record which is used. Preserve the sign of the pressure
-difference in raw history even if the load proxy uses its absolute value.
+Commissioning corrected the geometry: TCG:9 (formerly MAXS) is pumped down,
+TCG:7 is the WAXS sample chamber. Both faces are measured in mbar; do not assume
+one face is atmospheric. Preserve the sign of the pressure difference in raw
+history even if the load proxy uses its absolute value. Unknown/under-range
+pressures need explicit quality/bounds, not invented zeros.
 
 Pressure-time is a **loading proxy**, not measured creep strain or a damage law.
 Membrane stress depends on aperture, clamping, thickness, deflection and initial
@@ -29,9 +31,9 @@ shutter open. Let W mean the window valve is confirmed closed/inserted.
 
 1. **Beam-path timer:** `integral B dt`, independent of window position.
 2. **Window beam timer:** `integral B W dt`, independent of pressure.
-3. **BPM-qualified window timer:** `integral B W M dt`, where M is provisional
-   `BPM3 SumX > 0.5` in native PV units. This is a diagnostic timer, not a second
-   exposure model. Missing/invalid BPM data give unknown M.
+3. **BPM-qualified window timer (disabled):** the original `integral B W M dt`
+   diagnostic is deferred: SumX reads 0.6 with no beam, invalidating the proposed
+   >0.5 threshold. Keep the raw diagnostic only; there is no accepted M currently.
 4. **Upper-bound photon exposure:** `N_UB = integral B W Phi_UB dt`, where
    `Phi_UB = 1e13 photons/s * T_attenuators(E, foil_states)`.
 5. **Upper-bound interaction estimate:**

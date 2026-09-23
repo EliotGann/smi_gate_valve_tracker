@@ -2,7 +2,29 @@
 
 Status vocabulary: **confirmed** = user answer; **observed** = supplied source
 code, not live validation; **proposed** = design awaiting agreement; **unknown** =
-must be supplied. Update this ledger as the design evolves. Date: 2026-09-22.
+must be supplied. Update this ledger as the design evolves. Updated: 2026-09-23.
+
+## Commissioning corrections (supersede earlier selections)
+
+- Both sides can begin pumped, then GV6W closes and the upstream WAXS sample
+  chamber is slowly vented. Track downstream pressure rise/rate during closure;
+  this is separate from downstream pump-cycle timing. See CLOSED_WINDOW_WATCH.md.
+
+- Pump-down pressure is **TCG:9 `XF:12IDC-VA:2{B1:WAXS-TCG:9}P-I`**, formerly
+  called MAXS. WAXS **TCG:7 `XF:12IDC-VA:2{Det:300KW-TCG:7}P:Raw-I`** is the
+  sample chamber. Both are mbar. Loading is their absolute difference while the
+  window is closed; the opposite face is not assumed atmospheric (replaces C3/C4).
+- Operator accepts GV6W **1=open, 0=not open → closed**, photon/FE shutters
+  **1=closed, 0=not closed → open** for monitoring. Fast shutter is **7=closed,
+  0=open**. Other values and invalid/disconnected inputs remain unknown (resolves C9).
+- Operator reports fast-shutter timing adequate, less than approximately 0.1 s,
+  and confirms Bragg readback correct. No quantified pulse-loss bound is implied.
+- Disregard BPM3 for beam presence and the BPM-qualified timer for now: **0.6
+  without beam** invalidates the proposed >0.5 threshold (supersedes C8/C19).
+  Raw diagnostics may remain visible. BPM never gates/scales nominal exposure.
+- Operator checked `P-I`: below-range is **numeric 0E0**, so no `Lo` parsing is
+  required. Preserve zero as reported with under-range meaning; the actual gauge
+  reporting bound remains to establish for qualification/loading uncertainty.
 
 ## Confirmed in the first discussion
 
@@ -10,8 +32,8 @@ must be supplied. Update this ledger as the design evolves. Date: 2026-09-22.
 | --- | --- |
 | C1 | Completion means strictly below **0.01 mbar**, correcting the original `1e2` notation to `1e-2`. |
 | C2 | Atmosphere qualification means strictly above **700 mbar**. |
-| C3 | Evacuated-side pressure is WAXS `XF:12IDC-VA:2{Det:300KW-TCG:7}P:Raw-I`, in mbar. |
-| C4 | The other window face is at atmosphere; loading grows as the chamber is pumped. |
+| C3 | Superseded by commissioning correction above: TCG:9 is the pump-down side. |
+| C4 | Superseded: use measured TCG:7 sample-chamber pressure on the other face. |
 | C5 | Primary pump duration starts at the downward 700 mbar crossing, after atmosphere was observed. |
 | C6 | Retain both full vent/pump counts and one count per closure that reaches pumped state. |
 | C7 | Retain beam-path-enabled time regardless of window position and closed-window beam exposure time. |
@@ -31,7 +53,7 @@ must be supplied. Update this ledger as the design evolves. Date: 2026-09-22.
 | C16 | There is no direct photon-energy PV. Plan to derive energy from the supplied Bragg readback conversion; units, offset and supported range still need verification. |
 | C17 | Use **1e13 photons/s** as the user-supplied nominal unattenuated worst-case reference, multiplying by attenuator transmission and assuming sample transmission of one. |
 | C18 | Keep **one upper-bound exposure model** initially, gated by ring, three shutters and closed window. BPM3 does not gate or scale this model. No parallel BPM-qualified exposure estimate. |
-| C19 | Provisional beam-present comparator is **BPM3 SumX > 0.5 in native PV units**. Verify units, polarity, noise and hysteresis. Retain shutter-only timers and a separate BPM-qualified window timer. |
+| C19 | Original >0.5 BPM comparator and BPM-qualified timer are now disabled; retain shutter-based timers. |
 | C20 | Fast shutter is triggered through EPICS or hardware; its PV is expected to change in both cases. Actual edge cadence/latency still needs measurement. |
 | C21 | Required energy coverage extends through **24 keV**. The 2.1 keV lower limit is proposed from source code, not newly confirmed. |
 | C22 | Both attenuator banks are adjacent, after the fast shutter and before the sample. |
@@ -91,8 +113,8 @@ definitions. Tests lock the current interpretation so changes can be deliberate.
 - Debounce slow mechanical state changes; pressure dwell/hysteresis is now specified
   in C33–C36 and should be validated against measured noise. Fast shutter pulses require edge capture,
   not the same debounce as mechanical valves.
-- Nominal atmospheric pressure is a configurable approximation if no barometer
-  exists. No numeric production ambient-pressure default has been accepted.
+- Use measured TCG:7 pressure as the opposite-face pressure; no implicit nominal
+  atmospheric fallback on gauge loss.
 - Loading threshold, mechanical debounce, sampling rates, maximum
   gaps, ring-current threshold/mode policy, and energy-motion policy are unknown.
 - Local SQLite plus backed-up history; retain per-window and installation totals.

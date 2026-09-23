@@ -1,5 +1,15 @@
 # Soft IOC design and implementation plan
 
+Commissioning corrections: primary pump-down input is TCG:9 `P-I`; WAXS TCG:7
+is the measured sample-chamber pressure on the opposite face. Both are mbar;
+loading uses their difference, not a fixed atmospheric reference. `P-I` remains
+numeric, reporting zero below range. The BPM-qualified timer/beam inference is
+disabled (0.6 observed without beam); raw SumX remains diagnostic only.
+Operator-accepted binary conventions and under-range details are in PVS.md.
+The live v2 [closed-window watch](CLOSED_WINDOW_WATCH.md) handles closure with
+both sides already pumped followed by upstream venting. It tracks downstream
+rise separately from full pump cycles; durable episode recording remains planned.
+
 ## 1. Objectives and metric contract
 
 The tracker observes the new Kapton-window valve and relevant beamline readbacks
@@ -18,7 +28,7 @@ those totals. Use a window installation ID and configuration/calibration epochs.
 | LoadedTime / DPIntegral | Closed-window differential-pressure threshold time and mbar s loading proxy. |
 | BeamPathTime | Ring eligible and all three shutters open, regardless of valve state. |
 | WindowBeamTime | BeamPathTime restricted to confirmed window closed, regardless of pressure. |
-| BPMQualifiedWindowTime | WindowBeamTime additionally qualified by provisional BPM3 SumX > 0.5; diagnostic only. |
+| BPMQualifiedWindowTime | Disabled pending calibration; no accepted beam-presence threshold. |
 | UpperBoundPhotons | Window-gated integral of 1e13 photons/s × attenuator transmission, with sample transmission assumed one. |
 | UpperBoundInteractionJ | Energy/thickness-weighted deposited-energy estimate from the same upper-bound photon model, once material inputs are known. |
 | ValidTime / UnknownTime | Separate coverage for each integrated metric, never silently treating unknown as zero exposure. |
@@ -29,7 +39,7 @@ recorded offset, not a claim about activity before tracking began.
 
 Initial exposure model: **one nominal upper-bound channel**, not a calibrated BPM
 flux estimate or a parallel BPM-qualified exposure channel. BPM3 SumX provides
-diagnostics and the extra timer only. Derive photon energy from Bragg readback
+raw diagnostics only for now. Derive photon energy from Bragg readback
 because no direct energy PV exists. See PHYSICS.md for formulae and future
 measured-flux calibration. Main beam-path ordering is now confirmed in PVS.md.
 
@@ -78,6 +88,11 @@ measured reconnect/soak results, not a presumed leak-free framework.
 
 ## 4. Valve and pump state machines
 
+For this commissioning scope use operator-accepted 1=open/0=closed for GV6W,
+1=closed/0=open for FE and photon shutters, and 7=closed/0=open for fast shutter.
+The first two conventions include assumed endpoints from negated status bits;
+other codes or invalid inputs are unknown. The richer endpoint model below is
+a future option, not a requirement to acquire opposite-status PVs now.
 Normalize valve inputs to OPEN, CLOSED, MOVING, UNKNOWN/FAULT. Production should
 use positive endpoint confirmation; never equate every non-open value to closed.
 Debounce mechanical endpoints without discarding physical moves. Count arrival
