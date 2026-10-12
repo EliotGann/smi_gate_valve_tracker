@@ -2,7 +2,7 @@
 <display typeId="org.csstudio.opibuilder.Display" version="1.0.0">
   <name>KaptonMon - beamtime recorder / window overview (local CA)</name>
   <width>1680</width>
-  <height>1190</height>
+  <height>1350</height>
   <show_grid>false</show_grid>
   <macros>
     <include_parent_macros>true</include_parent_macros>
@@ -907,5 +907,145 @@
     <width>1630</width>
     <height>28</height>
     <text>Close/reopen the display freely. Stop/restart the backend with the same database, config and window ID to resume.</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>Retention_label</name>
+    <x>20</x>
+    <y>1110</y>
+    <width>350</width>
+    <height>28</height>
+    <text>History policy</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>Retention</name>
+    <x>380</x>
+    <y>1110</y>
+    <width>440</width>
+    <height>28</height>
+    <pv_name>$(P)Storage:Policy-Sts</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>DatabaseMiB_label</name>
+    <x>840</x>
+    <y>1110</y>
+    <width>350</width>
+    <height>28</height>
+    <text>Database + WAL size (MiB)</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>DatabaseMiB</name>
+    <x>1200</x>
+    <y>1110</y>
+    <width>440</width>
+    <height>28</height>
+    <pv_name>$(P)Storage:Size-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>HistoryReceived_label</name>
+    <x>20</x>
+    <y>1144</y>
+    <width>350</width>
+    <height>28</height>
+    <text>Received observations (this session)</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>HistoryReceived</name>
+    <x>380</x>
+    <y>1144</y>
+    <width>440</width>
+    <height>28</height>
+    <pv_name>$(P)Storage:Received-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>HistoryRetained_label</name>
+    <x>840</x>
+    <y>1144</y>
+    <width>350</width>
+    <height>28</height>
+    <text>Retained events (this session)</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>HistoryRetained</name>
+    <x>1200</x>
+    <y>1144</y>
+    <width>440</width>
+    <height>28</height>
+    <pv_name>$(P)Storage:Retained-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>HistorySkipped_label</name>
+    <x>20</x>
+    <y>1178</y>
+    <width>350</width>
+    <height>28</height>
+    <text>Skipped repeats/unused (this session)</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>HistorySkipped</name>
+    <x>380</x>
+    <y>1178</y>
+    <width>440</width>
+    <height>28</height>
+    <pv_name>$(P)Storage:Skipped-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>HistoryRows_label</name>
+    <x>840</x>
+    <y>1178</y>
+    <width>350</width>
+    <height>28</height>
+    <text>Total stored event rows</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>HistoryRows</name>
+    <x>1200</x>
+    <y>1178</y>
+    <width>440</width>
+    <height>28</height>
+    <pv_name>$(P)Storage:EventRows-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>SnapshotRows_label</name>
+    <x>20</x>
+    <y>1212</y>
+    <width>350</width>
+    <height>28</height>
+    <text>Total historical snapshot rows</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>SnapshotRows</name>
+    <x>380</x>
+    <y>1212</y>
+    <width>440</width>
+    <height>28</height>
+    <pv_name>$(P)Storage:SnapshotRows-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
   </widget>
 </display>

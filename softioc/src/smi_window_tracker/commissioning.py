@@ -273,7 +273,7 @@ def make_ioc(specs: tuple[InputSpec, ...], store=None):  # pragma: no cover - op
         finally:
             await context.disconnect()
 
-    async def commit(self):
+    async def commit(self, *, final=False):
         import json
 
         async with self.diagnostic_lock:
@@ -284,9 +284,14 @@ def make_ioc(specs: tuple[InputSpec, ...], store=None):  # pragma: no cover - op
             events, cycles = self.recorder.events, self.recorder.cycles
             self.recorder.events, self.recorder.cycles = [], []
         try:
-            work = asyncio.create_task(asyncio.to_thread(store.commit, events, cycles, state))
+
+            def save():
+                seq, utc = store.commit(events, cycles, state, final=final)
+                return seq, utc, store.history_outputs()
+
+            work = asyncio.create_task(asyncio.to_thread(save))
             try:
-                seq, utc = await asyncio.shield(work)
+                seq, utc, history_outputs = await asyncio.shield(work)
             except asyncio.CancelledError:
                 await work  # SQLite connection must not be reused/closed while worker is active.
                 raise
@@ -294,7 +299,7 @@ def make_ioc(specs: tuple[InputSpec, ...], store=None):  # pragma: no cover - op
             self.storage_failed = True
             await self.app_Storage.write("FAULT: commit failed; stopping")
             raise
-        for key, value in outputs.items():
+        for key, value in (outputs | history_outputs).items():
             await getattr(self, "app_" + key).write(
                 float(value) if isinstance(value, int) else value
             )
@@ -375,7 +380,7 @@ def make_ioc(specs: tuple[InputSpec, ...], store=None):  # pragma: no cover - op
         finally:
             # Shutdown flush is performed after acquisition tasks are cancelled.
             if store is not None and not self.storage_failed:
-                await commit(self)
+                await commit(self, final=True)
 
     attributes["_publish"] = publish
     attributes["_observe"] = observe

@@ -77,7 +77,51 @@ separate future screens rather than nonfunctional buttons.
 
 ## Recording and interpretation
 
-- Every accepted source monitor/health-read and disconnect is journaled with
+### Reduced history (`changes-v1`)
+
+All observations still reach live calculations, liveness checks and displays.
+Only historical storage is filtered:
+
+- Valve/shutters/ring mode: every value, alarm/status or connection change,
+  baseline, receipt gap (>5 s), and one unchanged anchor per minute.
+- Both pressures and Bragg: every numeric change plus the same quality boundaries
+  and minute anchors. No pressure deadband or state-only coalescing is applied.
+- Ring current: one sample per minute plus zero/nonzero and quality transitions.
+  These are periodic samples, not averages. Ring gating remains unconfigured.
+- Unused BPM3: baseline/quality/gap records only; no routine value history.
+- Source timestamp churn and numeric text formatting alone do not create rows.
+- Recovery checkpoints still update approximately twice per second in one
+  replaceable row. Historical snapshots are minute-spaced, with additional
+  pump/state/quality boundaries and shutdown. Slope-sign chatter is not a boundary.
+
+`Storage:Seq-I` counts **commits**, not snapshot rows. Its value and totals are
+checkpointed atomically even when no historical snapshot is inserted. Sparse
+history is not an exhaustive receipt stream: do not interpret intervals between
+retained rows as acquisition gaps or replay them using the live 5 s expiry rule.
+Use explicit quality/gap events, minute anchors and checkpoint coverage.
+
+The main OPI's bottom panel shows received/retained/skipped observation counts
+for this process session; total database event/snapshot rows; and database + WAL
+size in MiB. Session counters reset on restart, unlike lifetime totals. The restart
+marker is an extra event, so session retained count is not exactly the row increment.
+
+With the backend stopped, compact old history using:
+
+```bash
+pixi run python -m smi_window_tracker.compact \
+  "$HOME/kapton-monitor-beamtime/history.sqlite" --replace
+```
+
+The tool takes the recorder lock, streams selected history to a new file, checks
+integrity and identity/sessions/cycles/checkpoint preservation, then atomically
+replaces the original. Redundant history is discarded to save space. Original
+selected IDs/timestamps and final session observations are retained. Before/after
+counts go in `compaction_audit`. Temporary space is required for the compact copy.
+Restart normally **without `--init`**. Input configuration and its hash are unchanged.
+
+### Calculation and durability details
+
+- Every retained observation/disconnect is journaled with
   source timestamp, receipt UTC/monotonic time, raw value/text, status and severity.
   Both pressure traces, shutter edges and valve changes can be inspected later.
 - Finite numeric strings such as WAXS `8.1E+02` are parsed as 810 mbar while
@@ -109,10 +153,11 @@ separate future screens rather than nonfunctional buttons.
   The worker commits approximately every 0.5 s, with completion-triggered wakeup.
   This cadence is not a measured power-loss guarantee under arbitrary I/O load.
   Check storage age/sequence and disk growth during beamtime.
-- A transaction saves the batch's events, cycles, snapshot and checkpoint before
+- A transaction saves selected events, cycles, optional snapshot and checkpoint before
   publishing durable totals; live input/watch readbacks can be newer. `Storage:Seq-I`
   is published last. Separate CA scalar updates are not an atomic screen snapshot.
-  SQLite uses WAL and synchronous=FULL. No automatic retention deletes are applied.
+  SQLite uses WAL and synchronous=FULL. New history uses the selection policy
+  above; existing history is reduced only by the explicit compaction command.
 - Restart restores committed totals/history, records a session gap, interrupts an
   active attempt and reacquires baselines. It never counts downtime or hidden
   transitions as known time. Window changes currently require a separate database;

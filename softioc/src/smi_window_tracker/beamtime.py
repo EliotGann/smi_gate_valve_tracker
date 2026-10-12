@@ -10,6 +10,7 @@ import json
 import sqlite3
 import time
 import uuid
+from copy import copy
 from dataclasses import asdict
 from pathlib import Path
 from statistics import median
@@ -18,6 +19,7 @@ from .contract import METRICS
 from .cycles import PumpTracker
 from .diagnostics import Diagnostics
 from .intervals import Conditions, account_interval
+from .retention import POLICY, EventSelector, SnapshotSelector
 
 SCHEMA = 1
 
@@ -70,6 +72,12 @@ class Store:
                 raise ValueError("Database schema/window/config differs; use its original identity")
             row = self.db.execute("SELECT payload FROM checkpoint WHERE id=1").fetchone()
             self.restored = json.loads(row[0]) if row else {}
+            legacy_seq = self.db.execute("SELECT coalesce(max(seq),0) FROM snapshots").fetchone()[0]
+            self.sequence = max(self.restored.get("storage_sequence", 0), legacy_seq)
+            self.snapshot_selector = SnapshotSelector()
+            self.event_rows = self.db.execute("SELECT count(*) FROM events").fetchone()[0]
+            self.snapshot_rows = self.db.execute("SELECT count(*) FROM snapshots").fetchone()[0]
+            self.path = path
             self.session = str(uuid.uuid4())
             self.window = window
             self.db.execute("INSERT INTO sessions VALUES (?,?,NULL)", (self.session, time.time()))
@@ -80,8 +88,18 @@ class Store:
             self.lock.close()
             raise
 
-    def commit(self, events, cycles, state):
+    def commit(self, events, cycles, state, *, final=False):
         now = time.time()
+        sequence = self.sequence + 1
+        # Work on an independent checkpoint; never mutate the reducer's snapshot.
+        checkpoint = {**state, "storage_sequence": sequence, "history_policy": POLICY}
+        important = any(
+            name in ("valve", "restart_gap")
+            or payload.get("history_reason") in ("quality", "receipt_gap")
+            for _, _, name, payload in events
+        )
+        selector = copy(self.snapshot_selector)
+        history = selector.select(time.monotonic(), state, force=bool(cycles) or final or important)
         with self.db:
             self.db.executemany(
                 "INSERT INTO events(session, receipt_utc, receipt_mono, name, payload) "
@@ -95,12 +113,29 @@ class Store:
                 "INSERT INTO cycles(session,payload) VALUES(?,?)",
                 [(self.session, encode(cycle)) for cycle in cycles],
             )
-            cursor = self.db.execute(
-                "INSERT INTO snapshots(utc,session,payload) VALUES(?,?,?)",
-                (now, self.session, encode(state)),
-            )
-            self.db.execute("INSERT OR REPLACE INTO checkpoint VALUES(1,?)", (encode(state),))
-        return cursor.lastrowid, now
+            if history:
+                self.db.execute(
+                    "INSERT INTO snapshots(seq,utc,session,payload) VALUES(?,?,?,?)",
+                    (sequence, now, self.session, encode(checkpoint)),
+                )
+            self.db.execute("INSERT OR REPLACE INTO checkpoint VALUES(1,?)", (encode(checkpoint),))
+        self.sequence = sequence
+        self.snapshot_selector = selector
+        self.event_rows += len(events)
+        self.snapshot_rows += int(history)
+        return sequence, now
+
+    def history_outputs(self):
+        """Cheap per-commit counters and file sizes (including the live WAL)."""
+        size = sum(
+            p.stat().st_size for p in (self.path, Path(str(self.path) + "-wal")) if p.exists()
+        )
+        return {
+            "HistoryRows": float(self.event_rows),
+            "SnapshotRows": float(self.snapshot_rows),
+            "DatabaseMiB": size / 2**20,
+            "Retention": POLICY,
+        }
 
     def close(self):
         with self.db:
@@ -134,6 +169,9 @@ class Recorder:
         self.cycles = []
         self.watch = {}
         self.pump_time = None
+        self.selector = EventSelector()
+        self.received = 0
+        self.retained = 0
         if state:
             self.events.append((time.time(), time.monotonic(), "restart_gap", {}))
 
@@ -234,19 +272,21 @@ class Recorder:
         self.inputs.update(name, sample)
         if name in ("pressure", "valve"):
             self.observe_pump(sample.received_s)
-        self.events.append(
-            (
-                time.time(),
-                sample.received_s,
-                name,
-                {
-                    **asdict(sample),
-                    "text": text[:256],
-                    "source_time": source_time,
-                    "status": status,
-                },
-            )
-        )
+        payload = {
+            **asdict(sample),
+            "text": text[:256],
+            "source_time": source_time,
+            "status": status,
+        }
+        self.received += 1
+        previous = self.selector.previous.get(name)
+        reason = self.selector.select(name, sample.received_s, payload)
+        if reason:
+            payload = {**payload, "history_reason": reason}
+            if reason == "receipt_gap":
+                payload["previous_receipt_mono"] = previous[0]
+            self.events.append((time.time(), sample.received_s, name, payload))
+            self.retained += 1
 
     def snapshot(self):
         counts = [
@@ -267,6 +307,7 @@ class Recorder:
             "pumped": self.pump.pumped,
             "elapsed": self.pump.current_elapsed_s,
             "watch": self.watch,
+            "recording_session": {"received": self.received, "retained": self.retained},
         }
 
     def outputs(self):
@@ -280,6 +321,9 @@ class Recorder:
         )
         result.update(
             {
+                "HistoryReceived": float(self.received),
+                "HistoryRetained": float(self.retained),
+                "HistorySkipped": float(self.received - self.retained),
                 "InterruptedCount": self.interrupted,
                 "PumpState": "Pumped down (qualified)" if self.pump.pumped else state["pump_state"],
                 "PumpElapsed": state["elapsed"] if state["elapsed"] is not None else float("nan"),

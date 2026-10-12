@@ -145,6 +145,12 @@ assert read('LOCAL:OBS:Input:valve:ReadTime', timeout=2).data[0] > initial_read_
 assert read('LOCAL:OBS:Input:valve:ChangeTime', timeout=2).data[0] == 0
 assert text('Input:valve:ReadAge') == 'just now'
 assert read('LOCAL:OBS:Input:pressure:ChangeTime', timeout=2).data[0] > 0
+assert text('Storage:Policy-Sts') == 'changes-v1'
+assert read('LOCAL:OBS:Storage:Skipped-I', timeout=2).data[0] > 0
+assert read('LOCAL:OBS:Storage:Received-I', timeout=2).data[0] > read(
+    'LOCAL:OBS:Storage:Retained-I', timeout=2).data[0]
+assert read('LOCAL:OBS:Storage:SnapshotRows-I', timeout=2).data[0] < read(
+    'LOCAL:OBS:Storage:Seq-I', timeout=2).data[0]
 """
         proc = subprocess.Popen(
             [sys.executable, "-c", server], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE

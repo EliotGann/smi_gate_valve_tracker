@@ -9,7 +9,10 @@ The main display includes stored counters, qualified pump status, last milestone
 early/recent summaries, timers and unknown coverage, pressure integral, recording
 health and the live closed-window vacuum watch. The **Input diagnostics** button
 opens `commissioning_overview.opi`; it includes raw values and friendly states.
-Both screens are 1680×1190. Use scroll/zoom as needed.
+The main screen is 1680×1350; diagnostics is 1680×1190. Use scroll/zoom as needed.
+The main screen's bottom panel shows `changes-v1` recording statistics: received,
+retained and skipped observations for this session; total event/snapshot rows;
+and database + WAL size in MiB. Restart resets session statistics, not totals.
 
 The backend serves only loopback: run BOY on the same workstation, with
 `127.0.0.1` included in BOY's CA address list. Titles and static labels must render

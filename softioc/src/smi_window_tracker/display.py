@@ -161,7 +161,7 @@ def diagnostics():
 
 
 def overview():
-    root = display("KaptonMon - beamtime recorder / window overview (local CA)", 1190)
+    root = display("KaptonMon - beamtime recorder / window overview (local CA)", 1350)
     navigation(root, "commissioning_overview.opi", "Input diagnostics", 1390, 60)
     rows = [
         ("Window", "Physical window / beamtime ID"),
@@ -234,6 +234,21 @@ def overview():
         1060,
         1630,
     )
+    for index, (key, title) in enumerate(
+        (
+            ("Retention", "History policy"),
+            ("DatabaseMiB", "Database + WAL size (MiB)"),
+            ("HistoryReceived", "Received observations (this session)"),
+            ("HistoryRetained", "Retained events (this session)"),
+            ("HistorySkipped", "Skipped repeats/unused (this session)"),
+            ("HistoryRows", "Total stored event rows"),
+            ("SnapshotRows", "Total historical snapshot rows"),
+        )
+    ):
+        x, y = 20 + (index % 2) * 820, 1110 + (index // 2) * 34
+        label(root, key + "_label", title, x, y, 350)
+        suffix, _, units = APP_FIELDS[key]
+        readout(root, key, suffix, x + 360, y, 440, units is not None)
     return root
 
 
