@@ -14,6 +14,7 @@ from .physics import bragg_energy_ev
 PRESSURES = {"pressure", "chamber_pressure"}
 STATE_CODES = {
     "valve": {0: "Closed (assumed)", 1: "Open"},
+    "downstream_valve": {0: "Closed (assumed)", 1: "Open"},
     "fast_shutter": {0: "Open", 7: "Closed"},
     "photon_shutter": {0: "Open (assumed)", 1: "Closed"},
     "front_end_shutter": {0: "Open (assumed)", 1: "Closed"},
@@ -156,6 +157,15 @@ class Diagnostics:
             or (previous and previous.problem(sample.received_s, self.stale_s))
         ):
             self.trend.upstream_baseline = None
+        if name == "downstream_valve" and (
+            sample.problem(sample.received_s, self.stale_s)
+            or sample.value != 0
+            or previous is None
+            or previous.value != 0
+            or previous.problem(sample.received_s, self.stale_s)
+        ):
+            self.trend.reset()
+            self.closed_since_s = sample.received_s
 
     def state(self, name: str, now_s: float) -> str:
         sample = self.samples.get(name)
@@ -187,6 +197,9 @@ class Diagnostics:
         if valve != 0:
             self.trend.reset()
             result["Status"] = "Inactive: valve open" if valve == 1 else "Unknown valve state"
+        elif self.value("downstream_valve", now_s) != 0:
+            self.trend.reset()
+            result["Status"] = "Inactive: GV7 open/unknown; not isolated"
         elif downstream is None or downstream < 0:
             self.trend.reset()
             result["Status"] = "Unknown downstream pressure"

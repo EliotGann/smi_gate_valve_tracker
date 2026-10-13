@@ -38,6 +38,7 @@ def test_bragg_energy_state():
 
 
 def feed(engine, t, downstream=0.003, upstream=0.003, valve=0):
+    engine.update("downstream_valve", Sample(0, t))
     for name, value in (("valve", valve), ("pressure", downstream), ("chamber_pressure", upstream)):
         engine.update(name, Sample(value, t))
     return engine.snapshot(t)
@@ -80,6 +81,7 @@ def test_under_range_unknowns_and_recovery_do_not_create_fictitious_rates():
 
 def test_post_close_read_required_and_startup_closed_is_observation_only():
     engine = Diagnostics()
+    engine.update("downstream_valve", Sample(0, 0))
     engine.update("pressure", Sample(0.003, 0))
     engine.update("valve", Sample(0, 1))
     assert engine.snapshot(1)["Status"] == "Waiting for post-close pressure"
@@ -136,6 +138,7 @@ def test_downstream_stale_or_invalid_with_live_valve_is_explicit():
     engine = Diagnostics()
     feed(engine, 0)
     engine.update("valve", Sample(0, 6))
+    engine.update("downstream_valve", Sample(0, 6))
     assert engine.snapshot(6)["Status"] == "Unknown downstream pressure"
 
 

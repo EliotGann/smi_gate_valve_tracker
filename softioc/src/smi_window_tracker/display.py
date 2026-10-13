@@ -102,7 +102,7 @@ def watch(root, y):
 
 
 def diagnostics():
-    root = display("KaptonMon - input states and vacuum watch (local CA)", 1190)
+    root = display("KaptonMon - input states and vacuum watch (local CA)", 1250)
     readout(root, "contract", "Version:Contract-I", 20, 60, 450)
     label(root, "hb_label", "Heartbeat", 500, 60, 120)
     readout(root, "heartbeat", "Heartbeat-I", 630, 60, 160, True)
@@ -144,24 +144,24 @@ def diagnostics():
         "Last read includes monitors/health reads; last change is observed here, not IOC time. "
         "Startup/reconnect sets a baseline. 'Just now' lasts 5 s.",
         20,
-        790,
+        850,
         1600,
     )
-    watch(root, 840)
+    watch(root, 900)
     label(
         root,
         "watch_note",
         "Positive rate = worsening vacuum. NaN = unavailable. Zero/invalid/gaps reset the watch. "
         "Recorder saves raw events and snapshots.",
         20,
-        1045,
+        1105,
         1630,
     )
     return root
 
 
 def overview():
-    root = display("KaptonMon - beamtime recorder / window overview (local CA)", 1350)
+    root = display("KaptonMon - beamtime recorder / window overview (local CA)", 1590)
     navigation(root, "commissioning_overview.opi", "Input diagnostics", 1390, 60)
     rows = [
         ("Window", "Physical window / beamtime ID"),
@@ -249,6 +249,41 @@ def overview():
         label(root, key + "_label", title, x, y, 350)
         suffix, _, units = APP_FIELDS[key]
         readout(root, key, suffix, x + 360, y, 440, units is not None)
+    for index, (key, title) in enumerate(
+        (
+            ("ProcedurePath", "Operating path"),
+            ("ProcedureState", "Procedure phase"),
+            ("HoldElapsed", "Isolated observation elapsed (s)"),
+            ("HoldRemaining", "Minimum observation remaining (s)"),
+            ("OpeningLimit", "GV7 pressure threshold (strictly below)"),
+            ("LastProcedure", "Last closure episode"),
+        )
+    ):
+        x, y = 20 + (index % 2) * 820, 1280 + (index // 2) * 34
+        label(root, key + "_label", title, x, y, 350)
+        suffix, _, units = APP_FIELDS[key]
+        readout(root, key, suffix, x + 360, y, 440, units is not None)
+    label(
+        root,
+        "procedure_warning_label",
+        "Procedural alarm (latched for episode; read-only advisory):",
+        20,
+        1400,
+        1600,
+    )
+    readout(root, "procedure_warning", APP_FIELDS["ProcedureAlarm"][0], 20, 1435, 1630)
+    label(root, "gv7_label", "GV7 detector valve", 20, 1475, 250)
+    readout(root, "gv7_state", input_suffix("downstream_valve", "State"), 290, 1475, 420)
+    label(
+        root,
+        "hold_note",
+        "Hold is not an opening permit. Manual turbo isolation is unobserved. "
+        "Rise rate informational; alarm limit 0.009 mbar.",
+        20,
+        1515,
+        1630,
+    )
+    readout(root, "path_history", APP_FIELDS["PathHistory"][0], 20, 1550, 1630)
     return root
 
 

@@ -41,7 +41,7 @@ class EventSelector:
         self.retained_at = {}
 
     def select(self, name, mono, payload):
-        if name == "restart_gap":
+        if name in ("restart_gap", "procedure"):
             return "session"
         previous = self.previous.get(name)
         self.previous[name] = (mono, payload)

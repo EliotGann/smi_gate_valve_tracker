@@ -4,6 +4,7 @@
 | --- | --- |
 | [DESIGN.md](DESIGN.md) | Architecture, metric contract, state machines and milestones |
 | [BEAMTIME.md](BEAMTIME.md) | Local-only KaptonMon recorder, facility-style names, main OPI, restart and backup |
+| [PROCEDURES.md](PROCEDURES.md) | Vacuum-first/manual-pump classification, GV7 sequence alarms and five-minute isolated hold |
 | [ASSUMPTIONS.md](ASSUMPTIONS.md) | Confirmed decisions, proposals and implementation boundaries |
 | [PVS.md](PVS.md) | Beamline PV inventory, source references and verification needs |
 | [CLOSED_WINDOW_WATCH.md](CLOSED_WINDOW_WATCH.md) | Live state column and downstream pressure-rise diagnostics during upstream venting |

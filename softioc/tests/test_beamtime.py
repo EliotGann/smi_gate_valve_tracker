@@ -150,7 +150,9 @@ os._exit(0)
     restored = Recorder(store.restored)
     assert restored.interrupted == 1
     assert restored.pump.pump_state == "idle"
-    assert store.db.execute("SELECT count(*) FROM events").fetchone()[0] == 3
+    assert (
+        store.db.execute("SELECT count(*) FROM events WHERE name!='procedure'").fetchone()[0] == 3
+    )
     assert (
         store.db.execute("SELECT end_utc FROM sessions ORDER BY start_utc LIMIT 1").fetchone()[0]
         is None

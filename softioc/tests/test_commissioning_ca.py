@@ -65,7 +65,7 @@ from caproto.server import PVGroup, pvproperty, run
 from smi_window_tracker.commissioning import InputSpec, make_ioc
 from smi_window_tracker.beamtime import Store
 from smi_window_tracker.contract import PREFIX
-store = Store(Path(os.environ['TEST_DATABASE']), 'window-test', 'test-config', create=True)
+store = Store(Path(os.environ['TEST_DATABASE']), 'window-test', '# test-config', create=True)
 class Source(PVGroup):
     pressure = pvproperty(value=1.234, read_only=True)
     valve = pvproperty(value=0, read_only=True)
@@ -80,6 +80,7 @@ class Source(PVGroup):
 src = Source(prefix="LOCAL:SOURCE:")
 obs = make_ioc((InputSpec("pressure", "LOCAL:SOURCE:pressure", "synthetic"),
                 InputSpec("valve", "LOCAL:SOURCE:valve", "synthetic"),
+                InputSpec("downstream_valve", "LOCAL:SOURCE:valve", "synthetic"),
                 InputSpec("chamber_pressure", "LOCAL:SOURCE:chamber", "synthetic")), store=store)(
     prefix=PREFIX)
 assert all(pv.pvspec.read_only for pv in obs.pvdb.values())
@@ -133,6 +134,9 @@ initial_read_time = read('LOCAL:OBS:Input:valve:ReadTime', timeout=2).data[0]
 assert ' | ' in source_time_label and source_time_label.endswith(' UTC')
 assert read('LOCAL:OBS:Storage:Seq-I', timeout=2).data[0] > 0
 assert text('Storage:State-Sts') == 'Recording (SQLite WAL/FULL)'
+assert text('Procedure:Path-Sts') == 'unclassified'
+assert 'Closure not observed' in text('Procedure:Alarm-Sts')
+assert read('LOCAL:OBS:Procedure:Alarm-Sts', data_type='time', timeout=2).metadata.severity == 2
 assert text("Input:pressure:State") == "Above pump target"
 assert text("ClosedWatch:Status").startswith("Rising")
 assert read("LOCAL:OBS:ClosedWatch:Rate", timeout=2).data[0] > 0

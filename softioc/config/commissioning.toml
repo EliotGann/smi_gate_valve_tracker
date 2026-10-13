@@ -2,6 +2,9 @@
 # Leave uncertain inputs without a pv field until the exact name is verified.
 # Raw observation does not imply verified polarity. No source PV writes are made.
 
+[procedure]
+hold_seconds = 300.0
+
 [inputs.pressure]
 pv = "XF:12IDC-VA:2{B1:WAXS-TCG:9}P-I"
 description = "Pump-down side (formerly MAXS), mbar. Primary pump-cycle pressure; operator confirms P-I remains numeric and reports 0E0 below gauge threshold (under-range, not exact zero)."
@@ -33,6 +36,10 @@ description = "Raw diagnostic only; disregard for beam presence/timers. Reads 0.
 [inputs.valve]
 pv = "XF:12IDC-VA:2{BT:WAXS-GV:6W}Pos-Sts"
 description = "Operator convention: 1=open, 0=not open (assumed closed for tracking). Other values unknown."
+
+[inputs.downstream_valve]
+pv = "XF:12IDC-VA:2{Det:1M-GV:7}Pos-Sts"
+description = "Detector isolation GV7: CA survey confirms 0=Not Open, 1=Open; operator confirms closed. Opening pressure limit strictly below 0.009 mbar."
 
 [inputs.front_end_shutter]
 pv = "XF:12ID-PPS{Sh:FE}Sts:Cls-Sts"

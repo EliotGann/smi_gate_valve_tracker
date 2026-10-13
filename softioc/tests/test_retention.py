@@ -60,7 +60,7 @@ def test_reducer_sees_repeated_pressure_reads_for_dwell_despite_history_filter()
         recorder.event("pressure", Sample(0.003, t))
     assert recorder.pump.pumped is True
     assert recorder.received == 13
-    assert len(recorder.events) == 2
+    assert len([e for e in recorder.events if e[2] != "procedure"]) == 2
     assert recorder.outputs()["HistorySkipped"] == 11
 
 

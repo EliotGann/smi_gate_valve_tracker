@@ -1,5 +1,9 @@
 # Local KaptonMon beamtime app
 
+See [PROCEDURES.md](PROCEDURES.md) for the added GV7 readback, separate operating
+paths, 0.009 mbar pressure warning, configurable five-minute hold, and the
+`--accept-config-change` restart option needed to add that input to existing history.
+
 The proposed service name is **KaptonMon**, prefix **`XF:12IDC-ES{KaptonMon:1}`**.
 This follows the supplied facility-style device/field naming; site approval of
 the precise name is pending. No trailing colon is added after `}`.
@@ -38,8 +42,9 @@ pixi run -e caproto smi-kapton-monitor \
 `--init` creates new history and refuses to overwrite an existing database.
 On every subsequent start use **the same command without `--init`**. A missing
 database is an error rather than a silent statistics reset. The config contents
-and window ID must match; archive changes as a new explicit recording database
-until configuration-epoch migrations are implemented. One writer per database
+and window ID must match. Input changes require `--accept-config-change`, which
+records the old/new config in `config_epochs`; window identity still must match.
+One writer per database
 is enforced by a file lock. Do not delete the database to fix a startup error.
 
 If an earlier version failed at startup with `KeyError: 'KaptonMon'`, update to

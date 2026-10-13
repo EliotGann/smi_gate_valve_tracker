@@ -2,7 +2,7 @@
 <display typeId="org.csstudio.opibuilder.Display" version="1.0.0">
   <name>KaptonMon - beamtime recorder / window overview (local CA)</name>
   <width>1680</width>
-  <height>1350</height>
+  <height>1590</height>
   <show_grid>false</show_grid>
   <macros>
     <include_parent_macros>true</include_parent_macros>
@@ -1044,6 +1044,186 @@
     <height>28</height>
     <pv_name>$(P)Storage:SnapshotRows-I</pv_name>
     <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>ProcedurePath_label</name>
+    <x>20</x>
+    <y>1280</y>
+    <width>350</width>
+    <height>28</height>
+    <text>Operating path</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>ProcedurePath</name>
+    <x>380</x>
+    <y>1280</y>
+    <width>440</width>
+    <height>28</height>
+    <pv_name>$(P)Procedure:Path-Sts</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>ProcedureState_label</name>
+    <x>840</x>
+    <y>1280</y>
+    <width>350</width>
+    <height>28</height>
+    <text>Procedure phase</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>ProcedureState</name>
+    <x>1200</x>
+    <y>1280</y>
+    <width>440</width>
+    <height>28</height>
+    <pv_name>$(P)Procedure:State-Sts</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>HoldElapsed_label</name>
+    <x>20</x>
+    <y>1314</y>
+    <width>350</width>
+    <height>28</height>
+    <text>Isolated observation elapsed (s)</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>HoldElapsed</name>
+    <x>380</x>
+    <y>1314</y>
+    <width>440</width>
+    <height>28</height>
+    <pv_name>$(P)Procedure:HoldElapsed-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>HoldRemaining_label</name>
+    <x>840</x>
+    <y>1314</y>
+    <width>350</width>
+    <height>28</height>
+    <text>Minimum observation remaining (s)</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>HoldRemaining</name>
+    <x>1200</x>
+    <y>1314</y>
+    <width>440</width>
+    <height>28</height>
+    <pv_name>$(P)Procedure:HoldRemaining-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>OpeningLimit_label</name>
+    <x>20</x>
+    <y>1348</y>
+    <width>350</width>
+    <height>28</height>
+    <text>GV7 pressure threshold (strictly below)</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>OpeningLimit</name>
+    <x>380</x>
+    <y>1348</y>
+    <width>440</width>
+    <height>28</height>
+    <pv_name>$(P)Procedure:PressureLimit-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>LastProcedure_label</name>
+    <x>840</x>
+    <y>1348</y>
+    <width>350</width>
+    <height>28</height>
+    <text>Last closure episode</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>LastProcedure</name>
+    <x>1200</x>
+    <y>1348</y>
+    <width>440</width>
+    <height>28</height>
+    <pv_name>$(P)Procedure:Last-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>procedure_warning_label</name>
+    <x>20</x>
+    <y>1400</y>
+    <width>1600</width>
+    <height>28</height>
+    <text>Procedural alarm (latched for episode; read-only advisory):</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>procedure_warning</name>
+    <x>20</x>
+    <y>1435</y>
+    <width>1630</width>
+    <height>28</height>
+    <pv_name>$(P)Procedure:Alarm-Sts</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>gv7_label</name>
+    <x>20</x>
+    <y>1475</y>
+    <width>250</width>
+    <height>28</height>
+    <text>GV7 detector valve</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>gv7_state</name>
+    <x>290</x>
+    <y>1475</y>
+    <width>420</width>
+    <height>28</height>
+    <pv_name>$(P)Valve:Detector:State-Sts</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>hold_note</name>
+    <x>20</x>
+    <y>1515</y>
+    <width>1630</width>
+    <height>28</height>
+    <text>Hold is not an opening permit. Manual turbo isolation is unobserved. Rise rate informational; alarm limit 0.009 mbar.</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>path_history</name>
+    <x>20</x>
+    <y>1550</y>
+    <width>1630</width>
+    <height>28</height>
+    <pv_name>$(P)Pump:PathHistory-I</pv_name>
+    <format_type>4</format_type>
     <precision>6</precision>
     <precision_from_pv>false</precision_from_pv>
     <show_units>false</show_units>

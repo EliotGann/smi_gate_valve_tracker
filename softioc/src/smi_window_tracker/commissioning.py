@@ -119,7 +119,11 @@ def make_ioc(specs: tuple[InputSpec, ...], store=None):  # pragma: no cover - op
                 {"units": units, "precision": 6} if units is not None else {"max_length": 1024}
             )
             attributes["app_" + key] = pvproperty(
-                name=suffix, value=initial, read_only=True, **options
+                name=suffix,
+                value=initial,
+                read_only=True,
+                alarm_group="procedure" if key == "ProcedureAlarm" else None,
+                **options,
             )
     for name, (initial, units) in TREND_FIELDS.items():
         options = {"units": units, "precision": 6} if units else {"max_length": 256}
@@ -300,9 +304,16 @@ def make_ioc(specs: tuple[InputSpec, ...], store=None):  # pragma: no cover - op
             await self.app_Storage.write("FAULT: commit failed; stopping")
             raise
         for key, value in (outputs | history_outputs).items():
-            await getattr(self, "app_" + key).write(
-                float(value) if isinstance(value, int) else value
-            )
+            if key == "ProcedureAlarm":
+                await self.app_ProcedureAlarm.write(
+                    value,
+                    severity=int(outputs["ProcedureSeverity"]),
+                    status=7 if outputs["ProcedureSeverity"] else 0,
+                )
+            else:
+                await getattr(self, "app_" + key).write(
+                    float(value) if isinstance(value, int) else value
+                )
         await self.app_CommitTime.write(utc)
         self.last_commit_utc = utc
         await self.app_CommitAge.write(max(0, time.time() - utc))
@@ -328,7 +339,10 @@ def make_ioc(specs: tuple[InputSpec, ...], store=None):  # pragma: no cover - op
         if store is not None:
             from .beamtime import Recorder
 
-            self.recorder = Recorder(store.restored)
+            settings = tomllib.loads(store.config).get("procedure", {})
+            self.recorder = Recorder(
+                store.restored, hold_seconds=settings.get("hold_seconds", 300.0)
+            )
             self.diagnostics = self.recorder.inputs
             self.flush_requested = asyncio.Event()
             self.storage_failed = False
@@ -419,10 +433,21 @@ def beamtime_main():  # pragma: no cover - optional CA entry point
     parser.add_argument(
         "--init", action="store_true", help="Create new database; fails if it exists"
     )
+    parser.add_argument(
+        "--accept-config-change",
+        action="store_true",
+        help="Record a config epoch and preserve existing totals",
+    )
     args = parser.parse_args()
     specs = load_inputs(args.config)
     local_server_environment()
-    store = Store(args.database, args.window_id, args.config.read_text(), create=args.init)
+    store = Store(
+        args.database,
+        args.window_id,
+        args.config.read_text(),
+        create=args.init,
+        accept_config_change=args.accept_config_change,
+    )
     try:
         from caproto.server import run
 

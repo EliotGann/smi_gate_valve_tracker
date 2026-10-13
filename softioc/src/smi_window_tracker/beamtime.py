@@ -19,6 +19,7 @@ from .contract import METRICS
 from .cycles import PumpTracker
 from .diagnostics import Diagnostics
 from .intervals import Conditions, account_interval
+from .procedure import Procedure
 from .retention import POLICY, EventSelector, SnapshotSelector
 
 SCHEMA = 1
@@ -35,7 +36,15 @@ class Store:
     atomically include raw events, cycles, observation snapshots and totals.
     """
 
-    def __init__(self, path: Path, window: str, config: str, *, create: bool = False):
+    def __init__(
+        self,
+        path: Path,
+        window: str,
+        config: str,
+        *,
+        create: bool = False,
+        accept_config_change: bool = False,
+    ):
         if not window.strip() or len(window.encode()) > 128:
             raise ValueError("Window ID must be nonempty and <=128 UTF-8 bytes")
         self.lock = path.with_suffix(path.suffix + ".lock").open("a")
@@ -68,8 +77,24 @@ class Store:
             identity = self.db.execute(
                 "SELECT schema, window, config_hash FROM identity"
             ).fetchone()
-            if identity != (SCHEMA, window, digest):
+            if identity[:2] != (SCHEMA, window):
                 raise ValueError("Database schema/window/config differs; use its original identity")
+            if identity[2] != digest and not accept_config_change:
+                raise ValueError(
+                    "Database config differs; use --accept-config-change to record an epoch"
+                )
+            with self.db:
+                self.db.execute(
+                    "CREATE TABLE IF NOT EXISTS config_epochs "
+                    "(session TEXT, utc REAL, config_hash TEXT, config TEXT)"
+                )
+                if identity[2] != digest:
+                    old_config = self.db.execute("SELECT config FROM identity").fetchone()[0]
+                    self.db.execute(
+                        "INSERT INTO config_epochs VALUES(?,?,?,?)",
+                        ("prior-config", time.time(), identity[2], old_config),
+                    )
+                    self.db.execute("UPDATE identity SET config_hash=?,config=?", (digest, config))
             row = self.db.execute("SELECT payload FROM checkpoint WHERE id=1").fetchone()
             self.restored = json.loads(row[0]) if row else {}
             legacy_seq = self.db.execute("SELECT coalesce(max(seq),0) FROM snapshots").fetchone()[0]
@@ -80,7 +105,12 @@ class Store:
             self.path = path
             self.session = str(uuid.uuid4())
             self.window = window
+            self.config = config
             self.db.execute("INSERT INTO sessions VALUES (?,?,NULL)", (self.session, time.time()))
+            self.db.execute(
+                "INSERT INTO config_epochs VALUES(?,?,?,?)",
+                (self.session, time.time(), digest, config),
+            )
             self.db.commit()
         except BaseException:
             if hasattr(self, "db"):
@@ -94,7 +124,7 @@ class Store:
         # Work on an independent checkpoint; never mutate the reducer's snapshot.
         checkpoint = {**state, "storage_sequence": sequence, "history_policy": POLICY}
         important = any(
-            name in ("valve", "restart_gap")
+            name in ("valve", "downstream_valve", "procedure", "restart_gap")
             or payload.get("history_reason") in ("quality", "receipt_gap")
             for _, _, name, payload in events
         )
@@ -152,7 +182,7 @@ class Recorder:
     assuming an unverified ring-current/mode policy.
     """
 
-    def __init__(self, restored=None):
+    def __init__(self, restored=None, *, hold_seconds=300.0):
         state = restored or {}
         self.inputs = Diagnostics()
         self.pump = PumpTracker(max_gap_s=5)
@@ -165,10 +195,12 @@ class Recorder:
         self.early = state.get("early", [])
         self.recent = state.get("recent", [])
         self.last = state.get("last")
+        self.path_durations = state.get("path_durations", {})
         self.events = []
         self.cycles = []
         self.watch = {}
         self.pump_time = None
+        self.procedure = Procedure(state.get("procedure"), hold_seconds=hold_seconds)
         self.selector = EventSelector()
         self.received = 0
         self.retained = 0
@@ -235,6 +267,15 @@ class Recorder:
             ):
                 self.observe_pump(now)
         self.previous = now
+        if not before_event:
+            self.observe_procedure(now)
+
+    def observe_procedure(self, now):
+        transition = self.procedure.observe(now, self.inputs, utc=time.time())
+        if transition:
+            if len(self.events) >= 4096:
+                raise RuntimeError("Recording backlog exceeded 4096 events; stopping")
+            self.events.append((time.time(), now, "procedure", json.loads(encode(transition))))
 
     def observe_pump(self, now, *, force_unknown=False):
         if self.pump_time is not None and now <= self.pump_time:
@@ -251,6 +292,11 @@ class Recorder:
             payload = asdict(cycle)
             payload["duration_s"] = cycle.duration_s
             payload["completed_utc"] = time.time()
+            payload["operating_path"] = self.procedure.path
+            path = self.procedure.path
+            self.path_durations[path] = (self.path_durations.get(path, []) + [cycle.duration_s])[
+                -20:
+            ]
             self.cycles.append(payload)
             self.last = payload
             if len(self.early) < 5:
@@ -270,6 +316,7 @@ class Recorder:
             raise RuntimeError("Recording backlog exceeded 4096 events; stopping")
         self.advance(sample.received_s, before_event=True)
         self.inputs.update(name, sample)
+        self.observe_procedure(sample.received_s)
         if name in ("pressure", "valve"):
             self.observe_pump(sample.received_s)
         payload = {
@@ -302,11 +349,13 @@ class Recorder:
             "early": self.early,
             "recent": self.recent,
             "last": self.last,
+            "path_durations": self.path_durations,
             "active": self.pump.pump_state in ("candidate", "pumping"),
             "pump_state": self.pump.pump_state,
             "pumped": self.pump.pumped,
             "elapsed": self.pump.current_elapsed_s,
             "watch": self.watch,
+            "procedure": self.procedure.snapshot(),
             "recording_session": {"received": self.received, "retained": self.retained},
         }
 
@@ -334,10 +383,17 @@ class Recorder:
                 "RecentN": len(self.recent),
                 "PumpHistory": "Recent durations (s): "
                 + ", ".join(f"{v:.2f}" for v in self.recent),
+                "PathHistory": "; ".join(
+                    f"{name}: n={len(values)}, median={median(values):.2f} s"
+                    for name, values in sorted(self.path_durations.items())
+                    if values
+                )
+                or "No classified pump durations yet",
             }
         )
         for name, fields in self.totals.items():
             result.update({f"{name}_{field}": value for field, value in fields.items()})
+        result.update(self.procedure.outputs())
         milestones = (
             {item["pressure_mbar"]: item["elapsed_s"] for item in self.last["milestones"]}
             if self.last

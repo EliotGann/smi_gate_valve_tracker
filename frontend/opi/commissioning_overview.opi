@@ -2,7 +2,7 @@
 <display typeId="org.csstudio.opibuilder.Display" version="1.0.0">
   <name>KaptonMon - input states and vacuum watch (local CA)</name>
   <width>1680</width>
-  <height>1190</height>
+  <height>1250</height>
   <show_grid>false</show_grid>
   <macros>
     <include_parent_macros>true</include_parent_macros>
@@ -685,9 +685,101 @@
     <show_units>false</show_units>
   </widget>
   <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
-    <name>bragg_label</name>
+    <name>downstream_valve_label</name>
     <x>20</x>
     <y>535</y>
+    <width>255</width>
+    <height>28</height>
+    <text>Valve:Detector</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>downstream_valveText</name>
+    <x>290</x>
+    <y>535</y>
+    <width>220</width>
+    <height>28</height>
+    <pv_name>$(P)Valve:Detector:RawText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>downstream_valveState</name>
+    <x>530</x>
+    <y>535</y>
+    <width>340</width>
+    <height>28</height>
+    <pv_name>$(P)Valve:Detector:State-Sts</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>downstream_valveConnected</name>
+    <x>890</x>
+    <y>535</y>
+    <width>100</width>
+    <height>28</height>
+    <pv_name>$(P)Valve:Detector:Conn-Sts</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>downstream_valveSeverity</name>
+    <x>1020</x>
+    <y>535</y>
+    <width>100</width>
+    <height>28</height>
+    <pv_name>$(P)Valve:Detector:Severity-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>downstream_valveReadAge</name>
+    <x>1150</x>
+    <y>535</y>
+    <width>140</width>
+    <height>28</height>
+    <pv_name>$(P)Valve:Detector:ReadAgeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>downstream_valveChangeAge</name>
+    <x>1300</x>
+    <y>535</y>
+    <width>360</width>
+    <height>28</height>
+    <pv_name>$(P)Valve:Detector:ChangeAgeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>downstream_valveTimeText</name>
+    <x>1150</x>
+    <y>562</y>
+    <width>510</width>
+    <height>28</height>
+    <pv_name>$(P)Valve:Detector:SourceTimeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>bragg_label</name>
+    <x>20</x>
+    <y>595</y>
     <width>255</width>
     <height>28</height>
     <text>Mono:Bragg</text>
@@ -695,7 +787,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>braggText</name>
     <x>290</x>
-    <y>535</y>
+    <y>595</y>
     <width>220</width>
     <height>28</height>
     <pv_name>$(P)Mono:Bragg:RawText-I</pv_name>
@@ -707,7 +799,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>braggState</name>
     <x>530</x>
-    <y>535</y>
+    <y>595</y>
     <width>340</width>
     <height>28</height>
     <pv_name>$(P)Mono:Bragg:State-Sts</pv_name>
@@ -719,7 +811,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>braggConnected</name>
     <x>890</x>
-    <y>535</y>
+    <y>595</y>
     <width>100</width>
     <height>28</height>
     <pv_name>$(P)Mono:Bragg:Conn-Sts</pv_name>
@@ -731,7 +823,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>braggSeverity</name>
     <x>1020</x>
-    <y>535</y>
+    <y>595</y>
     <width>100</width>
     <height>28</height>
     <pv_name>$(P)Mono:Bragg:Severity-I</pv_name>
@@ -743,7 +835,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>braggReadAge</name>
     <x>1150</x>
-    <y>535</y>
+    <y>595</y>
     <width>140</width>
     <height>28</height>
     <pv_name>$(P)Mono:Bragg:ReadAgeText-I</pv_name>
@@ -755,7 +847,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>braggChangeAge</name>
     <x>1300</x>
-    <y>535</y>
+    <y>595</y>
     <width>360</width>
     <height>28</height>
     <pv_name>$(P)Mono:Bragg:ChangeAgeText-I</pv_name>
@@ -767,7 +859,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>braggTimeText</name>
     <x>1150</x>
-    <y>562</y>
+    <y>622</y>
     <width>510</width>
     <height>28</height>
     <pv_name>$(P)Mono:Bragg:SourceTimeText-I</pv_name>
@@ -779,7 +871,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
     <name>ring_current_label</name>
     <x>20</x>
-    <y>595</y>
+    <y>655</y>
     <width>255</width>
     <height>28</height>
     <text>Ring:Current</text>
@@ -787,7 +879,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>ring_currentText</name>
     <x>290</x>
-    <y>595</y>
+    <y>655</y>
     <width>220</width>
     <height>28</height>
     <pv_name>$(P)Ring:Current:RawText-I</pv_name>
@@ -799,7 +891,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>ring_currentState</name>
     <x>530</x>
-    <y>595</y>
+    <y>655</y>
     <width>340</width>
     <height>28</height>
     <pv_name>$(P)Ring:Current:State-Sts</pv_name>
@@ -811,7 +903,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>ring_currentConnected</name>
     <x>890</x>
-    <y>595</y>
+    <y>655</y>
     <width>100</width>
     <height>28</height>
     <pv_name>$(P)Ring:Current:Conn-Sts</pv_name>
@@ -823,7 +915,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>ring_currentSeverity</name>
     <x>1020</x>
-    <y>595</y>
+    <y>655</y>
     <width>100</width>
     <height>28</height>
     <pv_name>$(P)Ring:Current:Severity-I</pv_name>
@@ -835,7 +927,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>ring_currentReadAge</name>
     <x>1150</x>
-    <y>595</y>
+    <y>655</y>
     <width>140</width>
     <height>28</height>
     <pv_name>$(P)Ring:Current:ReadAgeText-I</pv_name>
@@ -847,7 +939,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>ring_currentChangeAge</name>
     <x>1300</x>
-    <y>595</y>
+    <y>655</y>
     <width>360</width>
     <height>28</height>
     <pv_name>$(P)Ring:Current:ChangeAgeText-I</pv_name>
@@ -859,7 +951,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>ring_currentTimeText</name>
     <x>1150</x>
-    <y>622</y>
+    <y>682</y>
     <width>510</width>
     <height>28</height>
     <pv_name>$(P)Ring:Current:SourceTimeText-I</pv_name>
@@ -871,7 +963,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
     <name>ring_mode_label</name>
     <x>20</x>
-    <y>655</y>
+    <y>715</y>
     <width>255</width>
     <height>28</height>
     <text>Ring:Mode</text>
@@ -879,7 +971,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>ring_modeText</name>
     <x>290</x>
-    <y>655</y>
+    <y>715</y>
     <width>220</width>
     <height>28</height>
     <pv_name>$(P)Ring:Mode:RawText-I</pv_name>
@@ -891,7 +983,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>ring_modeState</name>
     <x>530</x>
-    <y>655</y>
+    <y>715</y>
     <width>340</width>
     <height>28</height>
     <pv_name>$(P)Ring:Mode:State-Sts</pv_name>
@@ -903,7 +995,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>ring_modeConnected</name>
     <x>890</x>
-    <y>655</y>
+    <y>715</y>
     <width>100</width>
     <height>28</height>
     <pv_name>$(P)Ring:Mode:Conn-Sts</pv_name>
@@ -915,7 +1007,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>ring_modeSeverity</name>
     <x>1020</x>
-    <y>655</y>
+    <y>715</y>
     <width>100</width>
     <height>28</height>
     <pv_name>$(P)Ring:Mode:Severity-I</pv_name>
@@ -927,7 +1019,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>ring_modeReadAge</name>
     <x>1150</x>
-    <y>655</y>
+    <y>715</y>
     <width>140</width>
     <height>28</height>
     <pv_name>$(P)Ring:Mode:ReadAgeText-I</pv_name>
@@ -939,7 +1031,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>ring_modeChangeAge</name>
     <x>1300</x>
-    <y>655</y>
+    <y>715</y>
     <width>360</width>
     <height>28</height>
     <pv_name>$(P)Ring:Mode:ChangeAgeText-I</pv_name>
@@ -951,7 +1043,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>ring_modeTimeText</name>
     <x>1150</x>
-    <y>682</y>
+    <y>742</y>
     <width>510</width>
     <height>28</height>
     <pv_name>$(P)Ring:Mode:SourceTimeText-I</pv_name>
@@ -963,7 +1055,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
     <name>bpm3_sum_x_label</name>
     <x>20</x>
-    <y>715</y>
+    <y>775</y>
     <width>255</width>
     <height>28</height>
     <text>BPM3:SumX</text>
@@ -971,7 +1063,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>bpm3_sum_xText</name>
     <x>290</x>
-    <y>715</y>
+    <y>775</y>
     <width>220</width>
     <height>28</height>
     <pv_name>$(P)BPM3:SumX:RawText-I</pv_name>
@@ -983,7 +1075,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>bpm3_sum_xState</name>
     <x>530</x>
-    <y>715</y>
+    <y>775</y>
     <width>340</width>
     <height>28</height>
     <pv_name>$(P)BPM3:SumX:State-Sts</pv_name>
@@ -995,7 +1087,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>bpm3_sum_xConnected</name>
     <x>890</x>
-    <y>715</y>
+    <y>775</y>
     <width>100</width>
     <height>28</height>
     <pv_name>$(P)BPM3:SumX:Conn-Sts</pv_name>
@@ -1007,7 +1099,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>bpm3_sum_xSeverity</name>
     <x>1020</x>
-    <y>715</y>
+    <y>775</y>
     <width>100</width>
     <height>28</height>
     <pv_name>$(P)BPM3:SumX:Severity-I</pv_name>
@@ -1019,7 +1111,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>bpm3_sum_xReadAge</name>
     <x>1150</x>
-    <y>715</y>
+    <y>775</y>
     <width>140</width>
     <height>28</height>
     <pv_name>$(P)BPM3:SumX:ReadAgeText-I</pv_name>
@@ -1031,7 +1123,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>bpm3_sum_xChangeAge</name>
     <x>1300</x>
-    <y>715</y>
+    <y>775</y>
     <width>360</width>
     <height>28</height>
     <pv_name>$(P)BPM3:SumX:ChangeAgeText-I</pv_name>
@@ -1043,7 +1135,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>bpm3_sum_xTimeText</name>
     <x>1150</x>
-    <y>742</y>
+    <y>802</y>
     <width>510</width>
     <height>28</height>
     <pv_name>$(P)BPM3:SumX:SourceTimeText-I</pv_name>
@@ -1055,7 +1147,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
     <name>range_note</name>
     <x>20</x>
-    <y>790</y>
+    <y>850</y>
     <width>1600</width>
     <height>28</height>
     <text>Last read includes monitors/health reads; last change is observed here, not IOC time. Startup/reconnect sets a baseline. 'Just now' lasts 5 s.</text>
@@ -1063,7 +1155,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
     <name>watch_title</name>
     <x>20</x>
-    <y>840</y>
+    <y>900</y>
     <width>1600</width>
     <height>28</height>
     <text>Closed-window downstream vacuum watch (live, not a leak diagnosis)</text>
@@ -1071,7 +1163,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
     <name>watch_label_Status</name>
     <x>20</x>
-    <y>875</y>
+    <y>935</y>
     <width>300</width>
     <height>28</height>
     <text>Status</text>
@@ -1079,7 +1171,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>watch_Status</name>
     <x>330</x>
-    <y>875</y>
+    <y>935</y>
     <width>490</width>
     <height>28</height>
     <pv_name>$(P)VacWatch:State-Sts</pv_name>
@@ -1091,7 +1183,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
     <name>watch_label_Baseline</name>
     <x>840</x>
-    <y>875</y>
+    <y>935</y>
     <width>300</width>
     <height>28</height>
     <text>Downstream baseline (mbar)</text>
@@ -1099,7 +1191,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>watch_Baseline</name>
     <x>1150</x>
-    <y>875</y>
+    <y>935</y>
     <width>490</width>
     <height>28</height>
     <pv_name>$(P)VacWatch:Baseline-I</pv_name>
@@ -1111,7 +1203,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
     <name>watch_label_Change</name>
     <x>20</x>
-    <y>909</y>
+    <y>969</y>
     <width>300</width>
     <height>28</height>
     <text>Downstream change (mbar)</text>
@@ -1119,7 +1211,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>watch_Change</name>
     <x>330</x>
-    <y>909</y>
+    <y>969</y>
     <width>490</width>
     <height>28</height>
     <pv_name>$(P)VacWatch:Change-I</pv_name>
@@ -1131,7 +1223,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
     <name>watch_label_Rate</name>
     <x>840</x>
-    <y>909</y>
+    <y>969</y>
     <width>300</width>
     <height>28</height>
     <text>Recent signed rate (mbar/s)</text>
@@ -1139,7 +1231,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>watch_Rate</name>
     <x>1150</x>
-    <y>909</y>
+    <y>969</y>
     <width>490</width>
     <height>28</height>
     <pv_name>$(P)VacWatch:Rate-I</pv_name>
@@ -1151,7 +1243,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
     <name>watch_label_Span</name>
     <x>20</x>
-    <y>943</y>
+    <y>1003</y>
     <width>300</width>
     <height>28</height>
     <text>Rate span (s, up to 30)</text>
@@ -1159,7 +1251,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>watch_Span</name>
     <x>330</x>
-    <y>943</y>
+    <y>1003</y>
     <width>490</width>
     <height>28</height>
     <pv_name>$(P)VacWatch:Span-I</pv_name>
@@ -1171,7 +1263,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
     <name>watch_label_Elapsed</name>
     <x>840</x>
-    <y>943</y>
+    <y>1003</y>
     <width>300</width>
     <height>28</height>
     <text>Observation elapsed (s)</text>
@@ -1179,7 +1271,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>watch_Elapsed</name>
     <x>1150</x>
-    <y>943</y>
+    <y>1003</y>
     <width>490</width>
     <height>28</height>
     <pv_name>$(P)VacWatch:Elapsed-I</pv_name>
@@ -1191,7 +1283,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
     <name>watch_label_UpstreamChange</name>
     <x>20</x>
-    <y>977</y>
+    <y>1037</y>
     <width>300</width>
     <height>28</height>
     <text>Sample pressure change (mbar)</text>
@@ -1199,7 +1291,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>watch_UpstreamChange</name>
     <x>330</x>
-    <y>977</y>
+    <y>1037</y>
     <width>490</width>
     <height>28</height>
     <pv_name>$(P)VacWatch:SampleChange-I</pv_name>
@@ -1211,7 +1303,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
     <name>watch_label_DeltaP</name>
     <x>840</x>
-    <y>977</y>
+    <y>1037</y>
     <width>300</width>
     <height>28</height>
     <text>Absolute pressure difference (mbar)</text>
@@ -1219,7 +1311,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <name>watch_DeltaP</name>
     <x>1150</x>
-    <y>977</y>
+    <y>1037</y>
     <width>490</width>
     <height>28</height>
     <pv_name>$(P)Pressure:Diff-I</pv_name>
@@ -1231,7 +1323,7 @@
   <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
     <name>watch_note</name>
     <x>20</x>
-    <y>1045</y>
+    <y>1105</y>
     <width>1630</width>
     <height>28</height>
     <text>Positive rate = worsening vacuum. NaN = unavailable. Zero/invalid/gaps reset the watch. Recorder saves raw events and snapshots.</text>

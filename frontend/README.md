@@ -9,7 +9,10 @@ The main display includes stored counters, qualified pump status, last milestone
 early/recent summaries, timers and unknown coverage, pressure integral, recording
 health and the live closed-window vacuum watch. The **Input diagnostics** button
 opens `commissioning_overview.opi`; it includes raw values and friendly states.
-The main screen is 1680×1350; diagnostics is 1680×1190. Use scroll/zoom as needed.
+The main screen is 1680×1590; diagnostics is 1680×1250. Use scroll/zoom as needed.
+GV7 and the procedural phase/hold/pressure-limit alarms are described in
+[PROCEDURES.md](../docs/PROCEDURES.md); adding this input requires an explicit
+config epoch on the first restart with the existing database.
 The main screen's bottom panel shows `changes-v1` recording statistics: received,
 retained and skipped observations for this session; total event/snapshot rows;
 and database + WAL size in MiB. Restart resets session statistics, not totals.
