@@ -1,53 +1,52 @@
-# KaptonMon application
+# KaptonMon soft IOC
 
-The local beamtime app reads the beamline PVs, records raw events and calculated
-totals in SQLite, and serves read-only facility-style PVs on loopback only.
-The service name/prefix is provisional pending facility confirmation:
-`XF:12IDC-ES{KaptonMon:1}`.
+Install from this directory: `pixi install --locked -e caproto`.
 
-## Start the recorder
-
-Deployment defaults to `/nsls2/data/smi/shared/config/kaptondb/history.sqlite`,
-with rotating `kapton-monitor.log` alongside it. Use
-`bash /path/to/softioc/start-monitor.sh` for normal service startup. See
-[storage/file lifecycle](../docs/STORAGE.md) for one-time initialization, window
-records, NFS rollback journaling and migration of existing beamtime history.
-The explicit `--database` below continues to select the original local test file.
-
-From `softioc/`:
+## Network IOC server
 
 ```bash
-pixi install --locked -e caproto
-mkdir -p "$HOME/kapton-monitor-beamtime"
-pixi run -e caproto smi-kapton-monitor \
-  --config config/commissioning.toml \
-  --database "$HOME/kapton-monitor-beamtime/history.sqlite" \
-  --window-id "beamtime-window-001" --init
+bash start-monitor.sh --mode softioc \
+  --interface IOC_SERVER_IP --beacon-address SUBNET_BROADCAST_IP
 ```
 
-Choose the actual window/beamtime ID. **On restart omit `--init`**, retaining
-the same config, database and ID. Stop the previous commissioning observer first.
-The launcher binds server TCP/UDP and beacons to 127.0.0.1; it preserves existing
-beamline input CA discovery. No source PV writes are performed. If no repeater
-is available, run `pixi run -e caproto caproto-repeater` separately.
+`softioc` is the default mode; interface and beacon addresses are required.
+Repeat either flag as needed. `--server-port` defaults to 5064. These options
+configure only the output server, preserving beamline input `EPICS_CA_*` discovery.
 
-Open `frontend/opi/window_overview.opi` from the repository root in BOY Runtime.
-The default macro is `P=XF:12IDC-ES{KaptonMon:1}`. Set BOY's CA address list to
-include `127.0.0.1` on the backend host. Old `SMI:WINDOW:COMM:` names are retired.
-
-See the complete [beamtime runbook](../docs/BEAMTIME.md) for metric semantics,
-backup/inspection, local networking and limitations. Exposure/material models
-and maintenance workflows remain incomplete; the screen states this explicitly.
-
-## Diagnostic-only mode
+## Local test
 
 ```bash
-pixi run -e caproto smi-window-commissioning --config config/commissioning.toml
+bash start-monitor.sh --mode local \
+  --database "$HOME/kapton-monitor-beamtime/history.sqlite"
 ```
 
-This uses the same local-only output names but does not record to SQLite or serve
-the main app totals. Use `frontend/opi/commissioning_overview.opi` for this mode.
-Do not run both entry points concurrently under the same prefix.
+This binds output TCP/UDP and beacons to loopback. Use BOY on the same workstation
+with 127.0.0.1 in its CA list. For network mode, BOY points at the IOC host instead.
+Open `../frontend/opi/window_overview.opi`, macro `P=XF:12IDC-ES{KaptonMon:1}`.
+
+## Storage and restart
+
+Default history: `/nsls2/data/smi/shared/config/kaptondb/history.sqlite`.
+Rotating `kapton-monitor.log` is stored beside the selected database. SQLite uses
+DELETE/FULL journaling for the deployment volume. Provision mount/permissions first.
+Only first creation uses `--init --window-id UNIQUE_ID`; otherwise omit both to
+resume. Migrate existing history via SQLite backup instead of initializing anew.
+After a configuration edit, `--accept-config-change` records the new epoch.
+Window replacement is a confirmed transaction in the same persistent database.
+
+Read [DEPLOYMENT.md](../docs/DEPLOYMENT.md) and [STORAGE.md](../docs/STORAGE.md)
+for networking, NFS details, backups, files and supervisor behavior. Both modes
+support graceful SIGTERM. Only the tracker's `Window:Change-Cmd` accepts writes
+(history maintenance, not device control). No authenticated user/host ACL is
+implemented in the application; network mode exposes it to reachable CA clients.
+
+## Diagnostic-only observer
+
+`pixi run -e caproto smi-window-commissioning --config config/commissioning.toml`
+defaults to local mode. It also supports `--mode softioc --interface ...
+--beacon-address ...`. It has no SQLite recorder or maintenance command; use the
+diagnostic OPI rather than the full overview. Do not run it alongside the full
+IOC under the same prefix.
 
 ## Development
 
@@ -57,9 +56,6 @@ pixi run -e caproto pytest tests/test_commissioning_ca.py
 pixi run python -m smi_window_tracker.display ../frontend/opi
 ```
 
-The default checks include offline domain, persistence/restart and generated
-BOY/manifest checks. The optional caproto test exercises real synthetic CA sources
-and the SQLite-backed app on loopback, without contacting beamline equipment.
-Display generation is reproducible; edit `src/smi_window_tracker/display.py`
-rather than hand-editing generated OPI files. Shared design documentation lives
-under `../docs/`; supplied Bluesky modules are references, not runtime imports.
+Generated displays/manifest are checked against source. BOY dialog/runtime
+acceptance belongs on the actual workstation. Supplied Bluesky modules under
+`../docs/examples/` are reference material, not application imports.

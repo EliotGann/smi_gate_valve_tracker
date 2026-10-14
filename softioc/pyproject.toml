@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "smi-window-tracker"
 version = "0.1.0"
-description = "Offline monitoring primitives for the SMI Kapton-window lifetime IOC"
+description = "SMI Kapton-window monitoring soft IOC and durable history recorder"
 requires-python = ">=3.12"
 
 [project.scripts]

@@ -1,5 +1,10 @@
 # Decisions and assumptions
 
+Deployment status: caproto acquisition/server, SQLite, network/local modes,
+BOY visual/maintenance screens and window replacement are implemented. The ledger
+below records design evolution; current commands are in DEPLOYMENT.md. Current
+timing is v3 (<600 entry), storage DELETE/FULL, historical retention changes-v1.
+
 Status vocabulary: **confirmed** = user answer; **observed** = supplied source
 code, not live validation; **proposed** = design awaiting agreement; **unknown** =
 must be supplied. Update this ledger as the design evolves. Updated: 2026-09-23.

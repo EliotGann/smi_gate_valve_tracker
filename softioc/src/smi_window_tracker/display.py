@@ -104,7 +104,7 @@ def watch(root, y):
 
 
 def diagnostics():
-    root = display("KaptonMon - input states and vacuum watch (local CA)", 1250)
+    root = display("KaptonMon - input states and vacuum watch", 1250)
     readout(root, "contract", "Version:Contract-I", 20, 60, 450)
     label(root, "hb_label", "Heartbeat", 500, 60, 120)
     readout(root, "heartbeat", "Heartbeat-I", 630, 60, 160, True)
@@ -169,7 +169,7 @@ def diagnostics():
 
 
 def overview():
-    root = display("KaptonMon - beamtime recorder / window overview (local CA)", 1590)
+    root = display("KaptonMon - recorder / detailed statistics", 1590)
     navigation(root, "commissioning_overview.opi", "Input diagnostics", 1390, 60)
     navigation(root, "window_overview.opi", "Visual monitor", 1110, 60)
     rows = [

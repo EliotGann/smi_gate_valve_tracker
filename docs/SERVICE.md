@@ -1,5 +1,12 @@
 # Shared Linux IOC host: stability, recovery and resource budgets
 
+**Current operations:** see DEPLOYMENT.md for implemented startup modes, explicit
+CA interface/beacon settings, SIGTERM shutdown and supervision. Caproto is selected;
+the default shared-volume SQLite uses DELETE/FULL and bounded rotating logs.
+The sections below preserve the original resource/recovery design and acceptance
+matrix. Proposed budgets and unperformed soak/fault scenarios are not guarantees.
+Completed workstation soak measurements are in BEAMTIME_DEBRIEF_2026-10-12.md.
+
 ## Requirements and framework recommendation
 
 This IOC will run as a service alongside many other soft IOCs, and may be stopped
@@ -8,7 +15,7 @@ in normal use. That limits cycle-summary volume (about 8,760/year at continuous
 maximum use), **not** PV traffic: pressure, electrometer and shutter events can
 arrive much faster. Design and test those loads separately.
 
-Caproto remains a provisional recommendation for CA client/server integration,
+Caproto is implemented for CA client/server integration,
 with a single ordered calculation engine and SQLite history. Python makes the
 custom bookkeeping straightforward; it does not guarantee absence of leaks.
 EPICS Base/pythonSoftIOC is a strong alternative if it is the controls team's
@@ -17,7 +24,7 @@ Make the choice using **site support and measured long-running behavior**, keepi
 the domain layer independent of transport. Do not run several competing framework
 stacks in the production process just to retain optionality.
 
-Before selecting caproto, test the pinned client and server versions together:
+For each deployment, exercise the pinned client and server versions together:
 subscription cleanup, reconnect storms, stopped/slow clients, CA discovery/port
 coexistence, large-array limits, shutdown cancellation and published alarm behavior.
 Use one CA context per process, created once, with one owned subscription per
@@ -73,7 +80,7 @@ Measure `OldestUncommittedAge` and `LastCommitAge`; if storage cannot keep up,
 expose degraded durability rather than promising the one-second bound. Power-loss
 durability also depends on filesystem/storage honoring fsync.
 
-Use local SQLite, WAL mode, `synchronous=FULL`, one writer, bounded busy timeout,
+Use SQLite DELETE rollback journal, `synchronous=FULL`, one writer, bounded busy timeout,
 explicit transactions and versioned migrations. A transaction includes raw events
 or their durable representation, metric increments, attempt/milestone changes,
 baseline membership, and checkpoint sequence. Unique event/interval IDs make
@@ -107,7 +114,7 @@ long-running display query pin the WAL indefinitely. Back up with SQLite's backu
 API or an equivalent consistent procedure, and test restores. Backup retention
 must include retired windows and model/reference definitions.
 
-## Service deployment (plan, not a runnable unit yet)
+## Service supervision considerations
 
 Use the site's IOC manager or systemd, with a dedicated account, explicit working
 directory and persistent local state directory. Install a tested pinned environment

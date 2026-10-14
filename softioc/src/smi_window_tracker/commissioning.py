@@ -499,16 +499,20 @@ def make_ioc(specs: tuple[InputSpec, ...], store=None):  # pragma: no cover - op
 
 def main() -> None:  # pragma: no cover - command-line caproto integration
     """Run the commissioning observer with an explicitly selected output prefix."""
+    from .runtime import add_network_arguments, server_environment
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--prefix", default=PREFIX)
+    add_network_arguments(parser, default_mode="local")
     arguments = parser.parse_args()
-    local_server_environment()
+    try:
+        interfaces = server_environment(arguments)
+    except ValueError as exc:
+        parser.error(str(exc))
     ioc_class = make_ioc(load_inputs(arguments.config))
     ioc = ioc_class(prefix=arguments.prefix)
-    from caproto.server import run
-
-    run(ioc.pvdb, interfaces=["127.0.0.1"])
+    run_server(ioc.pvdb, interfaces)
 
 
 def local_server_environment():
@@ -522,12 +526,15 @@ def beamtime_main():  # pragma: no cover - optional CA entry point
     import logging
 
     from .beamtime import Store
-    from .runtime import configure_logging, recorder_parser
+    from .runtime import configure_logging, recorder_parser, server_environment
 
     parser = recorder_parser()
     args = parser.parse_args()
+    try:
+        interfaces = server_environment(args)
+    except ValueError as exc:
+        parser.error(str(exc))
     specs = load_inputs(args.config)
-    local_server_environment()
     log_path = args.log_file or args.database.parent / "kapton-monitor.log"
     # Do not create a missing shared mount path: deployment provisions permissions.
     store = Store(
@@ -546,10 +553,16 @@ def beamtime_main():  # pragma: no cover - optional CA entry point
             store.window,
             store.session,
         )
-        from caproto.server import run
+        logging.info(
+            "Serving mode=%s interfaces=%s port=%s beacons=%s",
+            args.mode,
+            interfaces,
+            args.server_port,
+            os.environ["EPICS_CAS_BEACON_ADDR_LIST"],
+        )
 
         ioc = make_ioc(specs, store=store)(prefix=PREFIX)
-        run(ioc.pvdb, interfaces=["127.0.0.1"])
+        run_server(ioc.pvdb, interfaces)
     except Exception:
         logging.exception("KaptonMon stopped with an error")
         raise
@@ -559,6 +572,26 @@ def beamtime_main():  # pragma: no cover - optional CA entry point
             logging.info("KaptonMon database closed")
             logging.getLogger().removeHandler(handler)
             handler.close()
+
+
+def run_server(pvdb, interfaces):  # pragma: no cover - subprocess transport tests
+    """Serve CA and drain acquisition/storage tasks on IOC-manager SIGTERM."""
+    import signal
+
+    from caproto.asyncio.server import start_server
+
+    async def serve():
+        task = asyncio.create_task(start_server(pvdb, interfaces=interfaces))
+        loop = asyncio.get_running_loop()
+        loop.add_signal_handler(signal.SIGTERM, task.cancel)
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
+        finally:
+            loop.remove_signal_handler(signal.SIGTERM)
+
+    asyncio.run(serve())
 
 
 if __name__ == "__main__":  # pragma: no cover

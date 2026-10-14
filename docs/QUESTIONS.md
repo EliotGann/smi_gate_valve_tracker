@@ -67,15 +67,14 @@ are intentionally specific; unknown answers can remain open until commissioning.
 
 ## Controls, history and operation
 
-24. Does controls prefer caproto or pythonSoftIOC/EPICS Base? Who maintains the
-    service, and what CA network/interface/prefix conventions apply?
-25. Which host, supervisor (systemd/container/IOC manager) and **local** persistent
-    filesystem are available? What backup destination and retention are required?
+24. Caproto is selected. Which server interface, beacon destinations and supervisor
+    should the deployment command use? Who owns ongoing service maintenance?
+25. Storage defaults to `/nsls2/data/smi/shared/config/kaptondb`, DELETE/FULL with
+    rotating logs. What backup schedule/retention and NFS-host acceptance apply?
 26. **Up to 1 second accepted**, immediate pump-completion/window-change commits.
     What maximum outage is tolerable, and what shared-host resource budgets apply?
-27. **BOY `.opi` confirmed**, scaffolded under `frontend/`; see DISPLAY.md.
-    Resolution is adjustable. Which BOY version should we target? What
-    launcher conventions and history-export mechanism should be used?
+27. BOY 4.6.1 generated schematic/detail/diagnostic/replacement screens are implemented.
+    What facility launcher/menu integration and history-export UI should be added?
 28. Does the site archiver retain these inputs at sufficient resolution to backfill
     outages? Backfill should be a separate provenance-tagged operation.
 29. How will a new window be identified: serial/lot, installation date, thickness,
@@ -87,5 +86,5 @@ are intentionally specific; unknown answers can remain open until commissioning.
 31. **Slowdown ratios only initially**, with early and recent references; no
     slowdown alarms until commissioning. Should data-quality loss alarm immediately
     or after a dwell? Are load/exposure alarm thresholds wanted later?
-32. How long should raw full-rate pressure/flux data be retained versus downsampled
-    history? Is every pump curve retained for the full window lifetime?
+32. `changes-v1` retention is implemented; explicit compaction is available. What
+    long-term backup retention and history archival period should be adopted?

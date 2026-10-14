@@ -1,4 +1,11 @@
-# Closed-window commissioning watch (observer contract v2)
+# Closed-window pressure watch
+
+Current PV prefix/suffix manifest is `frontend/opi/pv_manifest.json` (v3);
+`VacWatch:*` replaces the original `ClosedWatch:*` names used in the design table
+below. The full app persists selected pressure inputs and watch snapshots, and
+requires both GV6W and GV7 closed for the isolated rate display. The standalone
+diagnostic observer is still non-recording. See DEPLOYMENT.md for run modes and
+PROCEDURES.md for the five-minute hold and 0.009 mbar warnings.
 
 ## Operating sequence
 
@@ -8,16 +15,15 @@ This is **not a new downstream pump-down**. The interesting diagnostic is whethe
 downstream pressure rises (vacuum worsens), how quickly, and how this relates to
 upstream pressure. Upstream vent duration is not a pump-performance metric.
 
-The commissioning observer now publishes `Input:<name>:State` and a read-only
-`ClosedWatch:*` group. It remains live-only: these diagnostics are not persisted
-and do not implement the lifetime counters or full pump reducer.
+The server publishes normalized states and a read-only `VacWatch:*` group.
+The full recorder stores watch snapshots according to the history-selection policy.
 
 ## State column
 
 - GV6W: 1 → Open, 0 → Closed (assumed).
 - FE/photon: 1 → Closed, 0 → Open (assumed).
 - Fast shutter: 7 → Closed, 0 → Open. Other codes → Unknown code.
-- Pressure: positive <0.01 mbar → Pumped down (raw <0.01); >700 → Atmosphere;
+- Pressure: positive <0.01 mbar → Pumped down (raw <0.01); >=600 → Vented range;
   intermediate → Above pump target. These are instantaneous ranges, not the
   five-second vacuum latch or proof a complete pump cycle occurred.
 - Reported zero → Under range; negative/nonnumeric → Invalid/Unknown.

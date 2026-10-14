@@ -1,5 +1,10 @@
 # CS-Studio BOY screen plan (frontend component)
 
+**Current screens:** visual `window_overview.opi`, `window_details.opi`, input
+diagnostics and `change_window.opi`. See frontend/README.md for implemented UI
+behavior and DEPLOYMENT.md for connections. Wireframes below describe longer-term
+targets, not a list of all screens available today.
+
 Current commissioning screen: `frontend/opi/commissioning_overview.opi`, targeting
 CS-Studio 4.6.1. Pump-down pressure is TCG:9; sample pressure is WAXS TCG:7, both
 mbar. SumX is labeled unused diagnostic: beam inference and BPM-qualified hours
@@ -10,8 +15,8 @@ in the future wireframe below are disabled pending calibration.
 Target **legacy Eclipse CS-Studio BOY `.opi`**, confirmed by the user. Build the
 display alongside the IOC under `frontend/`, isolated from `softioc/` and ready
 for optional later extraction into its own repository. Shared `docs/` owns the
-metric semantics and interface specification. Only a frontend scaffold exists;
-`.opi` screens remain planned work.
+metric semantics and interface specification. Generated BOY screens now exist;
+historical graph/browser screens below remain planned.
 
 Suggested future structure within `frontend/`:
 

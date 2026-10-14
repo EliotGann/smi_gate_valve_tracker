@@ -8,4 +8,7 @@
 
 Use `P=XF:12IDC-ES{KaptonMon:1}`. These files are generated; see
 [frontend guide](../README.md) and [beamtime runbook](../../docs/BEAMTIME.md).
-All served outputs are local-only; input PV names live exclusively in the backend.
+Output serving is selected by backend `--mode softioc` or `--mode local`.
+Input PV names live exclusively in the backend. The default overview is visual;
+`window_details.opi` retains the detailed table view and `change_window.opi`
+implements the confirmed tracker-history maintenance command.

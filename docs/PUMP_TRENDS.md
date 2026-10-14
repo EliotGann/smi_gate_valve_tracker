@@ -1,5 +1,12 @@
 # Pump-down milestones and degradation trends
 
+**Current implementation:** runtime v3 starts below **600 mbar** after >700
+arming; v2 <=700 semantics below describe original offline design/tests. New
+reference populations are not mixed across this timing-definition upgrade.
+The app publishes first-5/recent-20 medians/counts and per-path durations; fitted
+comparisons/curve plots and exclusion workflows below remain design targets.
+See BEAMTIME.md and PROCEDURES.md for the deployed behavior.
+
 ## Purpose and agreed scope
 
 Track changes in pump-down performance as a possible indication of a deteriorating

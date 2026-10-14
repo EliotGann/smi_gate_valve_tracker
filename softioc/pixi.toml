@@ -1,7 +1,7 @@
 [workspace]
 name = "smi-window-tracker"
 version = "0.1.0"
-description = "Design and offline foundation for the SMI Kapton-window lifetime IOC"
+description = "SMI Kapton-window monitoring soft IOC"
 channels = ["conda-forge"]
 platforms = ["linux-64"]
 
@@ -25,7 +25,7 @@ lint = "ruff check src tests"
 format-check = "ruff format --check src tests"
 check = { depends-on = ["lint", "format-check", "coverage"] }
 
-# Optional evaluation environment; the IOC framework is not yet selected.
+# Caproto runtime plus development/integration checks.
 [feature.caproto.pypi-dependencies]
 caproto = ">=1.2,<2"
 

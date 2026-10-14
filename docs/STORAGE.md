@@ -74,21 +74,25 @@ the present test in its original location.
 One-time creation on the provisioned deployment volume:
 
 ```bash
-bash /path/to/softioc/start-monitor.sh --init --window-id "physical-window-001"
+bash /path/to/softioc/start-monitor.sh --mode softioc \
+  --interface IOC_SERVER_IP --beacon-address SUBNET_BROADCAST_IP \
+  --init --window-id "physical-window-001"
 ```
 
 Every normal start, including after a window replacement:
 
 ```bash
-bash /path/to/softioc/start-monitor.sh
+bash /path/to/softioc/start-monitor.sh --mode softioc \
+  --interface IOC_SERVER_IP --beacon-address SUBNET_BROADCAST_IP
 ```
 
 Equivalent command from `softioc/`:
 
 ```bash
-pixi run -e caproto smi-kapton-monitor --config config/commissioning.toml
+pixi run -e caproto smi-kapton-monitor --config config/commissioning.toml \
+  --mode local --database "$HOME/kapton-monitor-beamtime/history.sqlite"
 ```
 
-The launcher still serves CA only on loopback; this storage change does not enable
-remote OPI access. A separate deployment networking change will be needed when
-the OPI and IOC run on different hosts.
+Storage handling is identical in both modes. `softioc` serves the selected network
+interfaces; `local` binds only loopback. Neither automatically moves existing data.
+See [DEPLOYMENT.md](DEPLOYMENT.md) for CA discovery and exact mode options.

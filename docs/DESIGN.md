@@ -1,5 +1,11 @@
 # Soft IOC design and implementation plan
 
+**Status:** caproto runtime, SQLite recording, procedure monitoring, installation
+workflow and BOY screens are implemented. DEPLOYMENT.md and BEAMTIME.md describe
+current behavior. The broader architecture/phase tables below retain original
+design targets, including unimplemented material models and history browsing.
+Current storage uses DELETE/FULL rather than the original WAL proposal.
+
 Commissioning corrections: primary pump-down input is TCG:9 `P-I`; WAXS TCG:7
 is the measured sample-chamber pressure on the opposite face. Both are mbar;
 loading uses their difference, not a fixed atmospheric reference. `P-I` remains
@@ -8,7 +14,7 @@ disabled (0.6 observed without beam); raw SumX remains diagnostic only.
 Operator-accepted binary conventions and under-range details are in PVS.md.
 The live v2 [closed-window watch](CLOSED_WINDOW_WATCH.md) handles closure with
 both sides already pumped followed by upstream venting. It tracks downstream
-rise separately from full pump cycles; durable episode recording remains planned.
+rise separately from full pump cycles; procedure transitions are now recorded.
 
 ## 1. Objectives and metric contract
 

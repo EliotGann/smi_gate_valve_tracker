@@ -1,7 +1,13 @@
 # Documentation index
 
+Start with **DEPLOYMENT.md** for launch/network commands and **STORAGE.md** for
+files, shared-volume migration and backups. BEAMTIME.md defines current metrics.
+DESIGN/DISPLAY/PUMP_TRENDS/ASSUMPTIONS retain explicitly labeled design targets;
+they are not deployment instructions. The dated debrief is historical evidence.
+
 | Document | Contents |
 | --- | --- |
+| [DEPLOYMENT.md](DEPLOYMENT.md) | Network soft IOC versus local mode, installation and operations |
 | [DESIGN.md](DESIGN.md) | Architecture, metric contract, state machines and milestones |
 | [BEAMTIME.md](BEAMTIME.md) | Local-only KaptonMon recorder, facility-style names, main OPI, restart and backup |
 | [STORAGE.md](STORAGE.md) | Default deployment volume, database/window records, file lifecycle and rotating logs |

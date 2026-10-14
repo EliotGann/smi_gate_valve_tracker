@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <display typeId="org.csstudio.opibuilder.Display" version="1.0.0">
-  <name>KaptonMon - beamtime recorder / window overview (local CA)</name>
+  <name>KaptonMon - recorder / detailed statistics</name>
   <width>1680</width>
   <height>1590</height>
   <show_grid>false</show_grid>
@@ -17,7 +17,7 @@
     <y>20</y>
     <width>1620</width>
     <height>28</height>
-    <text>KaptonMon - beamtime recorder / window overview (local CA)</text>
+    <text>KaptonMon - recorder / detailed statistics</text>
   </widget>
   <widget typeId="org.csstudio.opibuilder.widgets.ActionButton" version="1.0.0">
     <name>open_commissioning_overview.opi</name>

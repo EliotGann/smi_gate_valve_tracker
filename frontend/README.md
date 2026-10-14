@@ -1,109 +1,65 @@
-# CS-Studio BOY frontend (4.6.1)
+# KaptonMon CS-Studio BOY frontend (4.6.1)
 
-**Default view:** `opi/window_overview.opi` is now the schematic (1680×1100).
-`beamline_schematic.opi` remains an equivalent alias. The former tabular main
-screen is preserved as `window_details.opi`, linked by **Detailed statistics**.
-The installed-window card below GV6W shows name, installation UTC, closed+pumped
-time, window shutters-open time and pump cycles. Durations use `24 days 8:05:01`,
-rounded to seconds. Numeric totals remain available unchanged. The current legacy
-installation date is explicitly unknown. State/procedure/hold/alarm readouts are
-grouped in the lower-right box.
+Open **`opi/window_overview.opi`** with macro **`P=XF:12IDC-ES{KaptonMon:1}`**.
+This is the visual default: beam right-to-left through WAXS/sample → GV6W Kapton
+→ intermediate TCG:9 → detector gate GV7 → Pilatus. The detector graphic is a
+location label, not a detector-vacuum measurement.
 
-**Change installed window…** opens the dedicated arm/token/typed-ID confirmation
-screen; see [WINDOW_LIFECYCLE.md](../docs/WINDOW_LIFECYCLE.md). This is the sole
-writable local tracker command, never a device control. Pressure readouts now
-share three-significant-digit formatting (`800`, `0.003`, `3e-05`) while raw text
-and numeric PVs remain available.
+## Connecting
 
-Pump entry is now <600 mbar after observing >700; vent confirmation latches above
-700 and clears below 600, tolerating the observed gauge drift. New durations are
-tagged with timing definition v3; new reference summaries do not mix v2 durations.
-Restart the backend normally and reopen displays to load these changes. No live
-window replacement or running-database migration was performed during development.
+- **Network IOC:** include the IOC server address (and search port if nonstandard)
+  in BOY's CA address list. The display may run on another workstation.
+- **Local mode:** run BOY on the backend host, with 127.0.0.1 in its CA list.
+- BOY may use preferences instead of shell environment variables. Preserve site
+  CA settings for other displays. No database filesystem mount is needed.
 
-## Beamline schematic
+See [DEPLOYMENT.md](../docs/DEPLOYMENT.md) for commands. Remove old
+`SMI:WINDOW:COMM:` overrides. Static labels must render without the IOC; if blank,
+inspect Window → Show View → Other → General → Error Log.
 
-`opi/beamline_schematic.opi` is an additional 1680×980 visual view, linked by
-**Beamline schematic** buttons in both existing screens. Beam travels right to
-left: incoming beam → WAXS sample chamber → Kapton GV6W → intermediate TCG:9
-section → detector isolation GV7 → Pilatus. The detector box is a location label,
-not a detector-vacuum readback.
+## Screens
 
-Restart the backend to publish the added `View:*` read-only PVs, then reload the
-OPIs. No input config/database change is required by this visual addition.
+| File | Purpose |
+| --- | --- |
+| `window_overview.opi` | Default visual monitor, installed-window summary, compact state box |
+| `beamline_schematic.opi` | Alias of the visual monitor |
+| `window_details.opi` | Counters, milestones, references, coverage and recording statistics |
+| `commissioning_overview.opi` | Raw/normalized inputs, source/receipt/change times and vacuum watch |
+| `change_window.opi` | Identity-bound arm/token/typed-ID replacement workflow |
 
-- Incoming arrow green means all three shutter readbacks indicate open; red
-  means at least one known closed, gray means unknown. It is shutter eligibility,
-  not beam detection or calibrated flux. Ring/BPM do not gate the arrow.
-- BPM3 is raw SumX intensity; it is not calibrated photons/s and has a known dark
-  offset. Bragg-derived photon energy is shown in keV; invalid data display NaN.
-- Chamber fills: blue <0.01 mbar, white >700, amber between, purple under-range
-  zero, gray unknown. These are instantaneous pressure ranges, not dwell-qualified
-  pump completion or the separate 0.009 mbar detector-valve threshold.
-- Valve blades lift clear when open. Kapton bowing is exaggerated toward the
-  lower-pressure side only when closed and both pressures are valid positive
-  values; a 1 mbar display deadband suppresses tiny differences. It is not a
-  deflection/stress calculation. Unknown pressure produces no invented bow.
-- Source freshness/quality are evaluated by the backend. BOY native rules map
-  presentation codes to colors, positions and visibility; invalid/disconnected
-  rule PV severity falls back to the gray/default styling. Watch the heartbeat
-  and disconnected indications if the backend stops. Actual runtime rendering
-  and disconnect appearance need operator verification on CS-Studio 4.6.1.
+Window summary: ID, installed UTC, closed+pumped time, closed-window shutters-open
+time and pump cycles. Durations use `24 days 8:05:01`, rounded to seconds, with
+numeric PVs retained. Unknown legacy dates stay unknown. Pressure formatting
+uses three significant digits (`800`, `0.003`, `3e-05`).
 
-The schematic is generated by `softioc/src/smi_window_tracker/visual_display.py`;
-its state semantics live in `schematic.py`. It contains no actuation controls.
+Beam arrow: green = all shutters open; red = known blocker; gray = unknown.
+It is eligibility, not measured flux. Ring/BPM do not gate it. BPM3 is raw
+intensity; energy is Bragg-derived keV. Chamber fills: blue <0.01 mbar, white
+>=600, amber between, purple zero under-range, gray unknown. These are raw
+ranges, not vacuum dwell or the 0.009 mbar detector-opening threshold. Bowing
+is exaggerated toward lower pressure with a 1 mbar deadband, not a stress model.
 
-Open **`opi/window_overview.opi`** for the local beamtime recorder. The default
-macro is **`P=XF:12IDC-ES{KaptonMon:1}`**, without a trailing colon. Remove any
-old `SMI:WINDOW:COMM:` overrides. Start/restart instructions and model limitations
-are in [BEAMTIME.md](../docs/BEAMTIME.md).
+Last read is monitor/health-read receipt; last change is locally observed change,
+timed monotonically. “Just now” lasts 5 seconds. Startup/reconnect/gaps establish
+baselines. Source UTC is separate; 1990-era dates are suspect. A recent read does
+not certify hardware acquisition liveness.
 
-The main display includes stored counters, qualified pump status, last milestones,
-early/recent summaries, timers and unknown coverage, pressure integral, recording
-health and the live closed-window vacuum watch. The **Input diagnostics** button
-opens `commissioning_overview.opi`; it includes raw values and friendly states.
-The main screen is 1680×1590; diagnostics is 1680×1250. Use scroll/zoom as needed.
-GV7 and the procedural phase/hold/pressure-limit alarms are described in
-[PROCEDURES.md](../docs/PROCEDURES.md); adding this input requires an explicit
-config epoch on the first restart with the existing database.
-The main screen's bottom panel shows `changes-v1` recording statistics: received,
-retained and skipped observations for this session; total event/snapshot rows;
-and database + WAL size in MiB. Restart resets session statistics, not totals.
+## Maintenance and generation
 
-The backend serves only loopback: run BOY on the same workstation, with
-`127.0.0.1` included in BOY's CA address list. Titles and static labels must render
-even without the IOC. Reload both backend and displays after contract changes.
+Only the change screen writes `Window:Change-Cmd`, a history-maintenance endpoint.
+See [window workflow](../docs/WINDOW_LIFECYCLE.md); success requires a durable
+receipt. In network mode it is reachable by CA clients; the token is not
+authentication. Site network access policy applies. No source PV is written.
 
-Debug rows show **Last read** (successful monitor/health-read receipt) and **Last
-observed value change**, both timed by the backend's monotonic clock. Repeated
-values refresh only Last read. “Just now” persists for five seconds. On startup,
-reconnect, invalid alarm or a freshness gap, change tracking starts a new baseline
-rather than inventing a transition. These diagnostic ages are session-local;
-the raw event journal retains receipt and source timestamps for historical analysis.
-
-Source times still appear below the receipt/change ages as
-`56 minutes ago | 2026-09-23 10:00:00 UTC`. Dates in/before the 1990 EPICS epoch
-are labeled **Suspect IOC time**, with the original date preserved. Missing and
-future source times are explicitly labeled. Neither an old source timestamp nor
-a recent read proves the hardware itself is updating. Numeric `:SourceTime-I`,
-`:ReadTime-I` and `:ChangeTime-I` remain available; zero change time means no
-observed change in the current valid segment.
-If entirely blank, check BOY's Error Log (Window → Show View → Other → General).
-
-Legacy BOY `typeId`, font and String waveform conventions are used; all buttons
-only navigate between displays. There are no source writes or writable controls.
-Actual workstation layout/navigation acceptance remains part of commissioning.
-
-## Maintain and test
-
-`opi/pv_manifest.json` is generated from `softioc/src/smi_window_tracker/contract.py`.
-The display source is `softioc/src/smi_window_tracker/display.py`:
+Sources are `display.py`, `visual_display.py`, `change_display.py` under
+`softioc/src/smi_window_tracker/`. Do not hand-edit generated XML. From repo root:
 
 ```bash
 pixi run --manifest-path softioc/pixi.toml python -m smi_window_tracker.display frontend/opi
 pixi run --manifest-path softioc/pixi.toml pytest frontend/tests
 ```
 
-Tests check regenerated files, legacy widget IDs, dimensions, navigation targets
-and every PV reference against the contract. Historical plots, a database browser,
-and the future audited window-replacement UI remain unimplemented.
+`opi/pv_manifest.json` lists suffixes and the sole writable command. Tests check
+generation, geometry, references, BOY rules and embedded command syntax. Runtime
+rendering/Jython interaction must also be checked in BOY. Historical plot/browser
+screens remain future work.

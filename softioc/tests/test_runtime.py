@@ -1,14 +1,23 @@
 import logging
+import os
 import sqlite3
 
+import pytest
+
 from smi_window_tracker.beamtime import Store
-from smi_window_tracker.runtime import DEFAULT_DATABASE, configure_logging, recorder_parser
+from smi_window_tracker.runtime import (
+    DEFAULT_DATABASE,
+    configure_logging,
+    recorder_parser,
+    server_environment,
+)
 
 
 def test_defaults_and_local_override():
     args = recorder_parser().parse_args(["--config", "config/commissioning.toml"])
     assert str(args.database) == "/nsls2/data/smi/shared/config/kaptondb/history.sqlite"
     assert args.database == DEFAULT_DATABASE and args.window_id is None and args.log_file is None
+    assert args.mode == "softioc"
     args = recorder_parser().parse_args(["--config", "test.toml", "--database", "/tmp/test.sqlite"])
     assert str(args.database.parent / "kapton-monitor.log") == "/tmp/kapton-monitor.log"
 
@@ -44,3 +53,53 @@ def test_existing_wal_database_converts_without_reset(tmp_path):
     assert store.db.execute("PRAGMA synchronous").fetchone()[0] == 2
     assert store.restored["counts"] == [1, 2, 3, 4]
     store.close()
+
+
+@pytest.mark.parametrize("mode", ["local", "softioc"])
+def test_output_network_does_not_change_input_discovery(monkeypatch, mode):
+    monkeypatch.setenv("EPICS_CA_ADDR_LIST", "192.0.2.10 192.0.2.11")
+    monkeypatch.setenv("EPICS_CA_AUTO_ADDR_LIST", "YES")
+    for key in (
+        "EPICS_CAS_AUTO_BEACON_ADDR_LIST",
+        "EPICS_CAS_BEACON_ADDR_LIST",
+        "EPICS_CAS_INTF_ADDR_LIST",
+        "EPICS_CAS_SERVER_PORT",
+    ):
+        monkeypatch.setenv(key, "inherited")
+    command = ["--config", "test.toml", "--mode", mode, "--server-port", "15064"]
+    if mode == "softioc":
+        command += [
+            "--interface",
+            "192.0.2.20",
+            "--beacon-address",
+            "192.0.2.255",
+            "--beacon-address",
+            "192.0.2.30:15065",
+        ]
+    interfaces = server_environment(recorder_parser().parse_args(command))
+    assert interfaces == (["127.0.0.1"] if mode == "local" else ["192.0.2.20"])
+    assert os.environ["EPICS_CAS_INTF_ADDR_LIST"] == interfaces[0]
+    assert os.environ["EPICS_CAS_AUTO_BEACON_ADDR_LIST"] == "NO"
+    assert os.environ["EPICS_CAS_SERVER_PORT"] == "15064"
+    assert os.environ["EPICS_CAS_BEACON_ADDR_LIST"] == (
+        "127.0.0.1" if mode == "local" else "192.0.2.255 192.0.2.30:15065"
+    )
+    assert os.environ["EPICS_CA_ADDR_LIST"] == "192.0.2.10 192.0.2.11"
+    assert os.environ["EPICS_CA_AUTO_ADDR_LIST"] == "YES"
+
+
+@pytest.mark.parametrize(
+    "flags",
+    [
+        [],
+        ["--interface", "192.0.2.20"],
+        ["--mode", "local", "--interface", "192.0.2.20"],
+        ["--mode", "local", "--server-port", "0"],
+        ["--interface", "0.0.0.0", "--beacon-address", "192.0.2.255"],
+        ["--interface", "192.0.2.20", "--beacon-address", "192.0.2.255:bad"],
+        ["--interface", "not-an-ip", "--beacon-address", "192.0.2.255"],
+    ],
+)
+def test_invalid_network_arguments(flags):
+    with pytest.raises(ValueError):
+        server_environment(recorder_parser().parse_args(["--config", "test.toml", *flags]))

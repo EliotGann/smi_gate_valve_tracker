@@ -118,7 +118,7 @@ request ID/token/service session. Tokens expire after 60 seconds and any confirm
 attempt consumes them. The UI never prefills the typed-ID field. Expired tokens
 cannot succeed even if the proposal text remains visible; check seconds remaining.
 
-Only `Window:Change-Cmd` is writable, on the local output IOC. It does not actuate
+Only `Window:Change-Cmd` is writable, on the output IOC. It does not actuate
 hardware. All device inputs and other published PVs remain read-only. Only the
 durable `Window:ChangeReceipt-I` identifies committed success. A closed/reopened
 screen owns no pending request; a session change invalidates confirmation.
@@ -143,8 +143,9 @@ a physical window. Retired-history browsing is still a future screen; SQLite
 retains it. BOY Jython dialog execution needs operator acceptance on the installed
 runtime; the atomic command transport and SQLite rollback/restart are tested locally.
 
-The paragraph below describes the original offline foundation; the guard is now
-also used by `WindowRequests` and the live transaction path.
+Serving follows `--mode softioc` (network) or `--mode local` (loopback); see
+DEPLOYMENT.md. The paragraph below describes the original offline foundation;
+the guard is now also used by `WindowRequests` and the live transaction path.
 
 The offline `WindowChangeGuard` tests an immutable proposal, one pending arm,
 monotonic expiry, identity/revision checks and one-use consumption. It returns a

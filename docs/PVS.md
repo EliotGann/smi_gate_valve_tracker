@@ -51,9 +51,9 @@ commissioning, not a quantified guarantee that every 0.1 s exposure is captured.
 The corrected geometry uses **TCG:9 for pump-down** and **TCG:7 for the WAXS
 sample chamber**, both in mbar. Window loading uses
 `abs(P_TCG9 - P_TCG7)` while GV6W is closed. This supersedes the fixed-atmosphere
-opposite-face assumption. Observer v2 adds state interpretations and a live
-pressure difference/rise watch (CLOSED_WINDOW_WATCH.md); lifetime integration
-and durable recording remain future work.
+opposite-face assumption. The runtime adds state interpretations, the pressure
+watch, interval integration and durable recording. See CLOSED_WINDOW_WATCH.md
+and BEAMTIME.md; output names are defined by the generated v3 manifest.
 
 Operator checked `P-I`: it remains numeric and reports **0E0 below the gauge
 threshold**, so no `Lo` text handling is needed for this source. Mirror that zero
@@ -63,8 +63,8 @@ reducer, establish that bound relative to 0.01 mbar before accepting under-range
 as vacuum qualification; retain its loading uncertainty rather than inventing an
 exact pressure. Generic text sources, if configured later, remain text/NaN.
 
-**Commissioning contract correction:** the `Input:pressure:*` output now means
-TCG:9 pump-down pressure; `Input:chamber_pressure:*` means TCG:7 sample pressure.
+**Commissioning contract correction:** `Pressure:Downstream*` means TCG:9
+pump-down pressure; `Pressure:Sample*` means TCG:7 sample pressure.
 Restart the observer and reload the matching OPI together. Earlier screenshots
 and samples used the old roles and must not be treated as TCG:9 pump histories.
 

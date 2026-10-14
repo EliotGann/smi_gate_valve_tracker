@@ -1,5 +1,13 @@
 # Verification strategy
 
+Current checks include SQLite transactions/restart/replacement, sparse retention,
+compaction, CLI network modes, read-only input transport, the sole local history
+command, real synthetic CA transport and SIGTERM shutdown. The main test task
+also verifies generated BOY files and PV contracts. See DEPLOYMENT.md for exact
+commands. Integration tests use isolated loopback even when exercising softioc
+mode; routed discovery and NFS-host acceptance require checks on the target server.
+The phase matrix below includes additional planned tests, not all completed tests.
+
 ## Offline foundation (implemented)
 
 Pressure-qualification regressions cover fixed deadlines under 700 mbar chatter,

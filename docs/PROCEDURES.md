@@ -75,7 +75,7 @@ Adding GV7 changes the configured inputs. Stop the old backend, then explicitly
 record the configuration change while preserving totals:
 
 ```bash
-pixi run -e caproto smi-kapton-monitor \
+pixi run -e caproto smi-kapton-monitor --mode local \
   --config config/commissioning.toml \
   --database "$HOME/kapton-monitor-beamtime/history.sqlite" \
   --window-id "beamtime-window-001" --accept-config-change
@@ -87,3 +87,6 @@ Reload both OPI files: GV7 appears in diagnostics and on the overview; procedure
 phase, timer, pressure limit and warning text are at the bottom of the overview.
 Input history retention remains `changes-v1`; procedure transitions force a
 snapshot, not every timer increment. Nothing writes to the source PVs.
+
+For network deployment use `--mode softioc` with interface/beacon options from
+DEPLOYMENT.md and the deployment database path instead of this local example.

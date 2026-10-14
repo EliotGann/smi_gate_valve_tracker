@@ -1,4 +1,4 @@
-"""Facility-style local CA names. Facility approval is still pending."""
+"""Facility-style CA names shared by network and local modes."""
 
 PREFIX = "XF:12IDC-ES{KaptonMon:1}"
 VERSION = "kapton-monitor-v3"

@@ -42,7 +42,8 @@ def test_exact_facility_prefix_matches_manifest(tmp_path, recording):
             store.close()
 
 
-def test_observer_receives_source_and_heartbeat_survives_gc(tmp_path):
+@pytest.mark.parametrize("mode", ["local", "softioc"])
+def test_observer_receives_source_and_heartbeat_survives_gc(tmp_path, mode):
     # Bind a local beacon sink so unicast UDP does not receive port-unreachable.
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as beacon:
         beacon.bind(("127.0.0.1", 0))
@@ -59,6 +60,8 @@ def test_observer_receives_source_and_heartbeat_survives_gc(tmp_path):
             "EPICS_CAS_AUTO_BEACON_ADDR_LIST": "NO",
             "EPICS_CAS_BEACON_ADDR_LIST": f"127.0.0.1:{beacon_port}",
             "TEST_DATABASE": str(tmp_path / "beamtime.sqlite"),
+            "TEST_MODE": mode,
+            "TEST_BEACON": str(beacon_port),
         }
         server = """
 import gc
@@ -66,10 +69,20 @@ import os
 from pathlib import Path
 from caproto import ChannelType
 from caproto.server import PVGroup, pvproperty, run
-from smi_window_tracker.commissioning import InputSpec, make_ioc
+from smi_window_tracker.commissioning import InputSpec, make_ioc, run_server
+from smi_window_tracker.runtime import recorder_parser, server_environment
 from smi_window_tracker.beamtime import Store
 from smi_window_tracker.contract import PREFIX
 store = Store(Path(os.environ['TEST_DATABASE']), 'window-test', '# test-config', create=True)
+args = ['--config','unused','--mode',os.environ['TEST_MODE'],
+        '--server-port',os.environ['EPICS_CAS_SERVER_PORT']]
+if os.environ['TEST_MODE'] == 'softioc':
+    args += ['--interface','127.0.0.1','--beacon-address',
+             '127.0.0.1:' + os.environ['TEST_BEACON']]
+interfaces = server_environment(recorder_parser().parse_args(args))
+# Local test uses its own beacon sink rather than the site's standard repeater.
+if os.environ['TEST_MODE'] == 'local':
+    os.environ['EPICS_CAS_BEACON_ADDR_LIST'] = '127.0.0.1:' + os.environ['TEST_BEACON']
 class Source(PVGroup):
     pressure = pvproperty(value=1.234, read_only=True)
     valve = pvproperty(value=0, read_only=True)
@@ -90,7 +103,7 @@ obs = make_ioc((InputSpec("pressure", "LOCAL:SOURCE:pressure", "synthetic"),
 assert all(pv.pvspec.read_only for name,pv in obs.pvdb.items()
            if not name.endswith("Window:Change-Cmd"))
 try:
-    run({**src.pvdb, **obs.pvdb}, interfaces=["127.0.0.1"])
+    run_server({**src.pvdb, **obs.pvdb}, interfaces)
 finally:
     store.close()
 """
@@ -199,7 +212,7 @@ assert read('LOCAL:OBS:Window:InstalledTime-I', timeout=2).data[0] == 1767225600
             servers = [row for row in udp if row[9] in inodes and row[1].endswith(f":{port:04X}")]
             assert servers and all(row[1].startswith("0100007F:") for row in servers)
         finally:
-            proc.send_signal(signal.SIGINT)
+            proc.send_signal(signal.SIGTERM)
             try:
                 _, stderr = proc.communicate(timeout=5)
             except subprocess.TimeoutExpired:
