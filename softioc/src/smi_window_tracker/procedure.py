@@ -79,6 +79,7 @@ class Procedure:
                 "pressure_limit_mbar": LIMIT_MBAR,
                 "vent_threshold_mbar": VENTED_MBAR,
                 "vent_complete_utc": None,
+                "vented_latch": False,
                 "hold_baseline_mbar": None,
                 "peak_downstream_mbar": down,
                 "hold_completed": False,
@@ -95,6 +96,11 @@ class Procedure:
         self.current_problem = ""
         if self.episode:
             e = self.episode
+            if up is not None:
+                if up > VENTED_MBAR:
+                    e["vented_latch"] = True
+                elif up < 600:
+                    e["vented_latch"] = False
             if (
                 detector == 1
                 and self.downstream == 0
@@ -115,7 +121,7 @@ class Procedure:
                 self.phase = "Observation incomplete"
             elif detector == 1:
                 if e["detector_open_utc"] is None:
-                    if self.hold_start is not None and up > VENTED_MBAR and down < LIMIT_MBAR:
+                    if self.hold_start is not None and e["vented_latch"] and down < LIMIT_MBAR:
                         self.hold_elapsed = now - self.hold_start
                     e["detector_open_utc"] = utc
                     e["pressure_at_open_mbar"] = down
@@ -128,7 +134,7 @@ class Procedure:
                         self._warn("GV7 opened before isolated hold completed")
                     if e["path"] == "unclassified":
                         self._warn("GV7 opened with unclassified preparation")
-                    if up <= VENTED_MBAR:
+                    if not e["vented_latch"]:
                         self._warn("GV7 opened before WAXS >700 mbar")
                 self.hold_start = None
                 self.phase = "Detector connected; isolated test ended"
@@ -151,10 +157,10 @@ class Procedure:
                 if up > VENTED_MBAR and e["vent_complete_utc"] is None:
                     e["vent_complete_utc"] = utc
                 if e["path"] == "vacuum-first":
-                    if up <= VENTED_MBAR or down >= LIMIT_MBAR:
+                    if not e["vented_latch"] or down >= LIMIT_MBAR:
                         self.hold_start, self.hold_elapsed = None, 0.0
                         self.phase = (
-                            "Venting WAXS" if up <= VENTED_MBAR else "Pressure limit exceeded"
+                            "Venting WAXS" if not e["vented_latch"] else "Pressure limit exceeded"
                         )
                     else:
                         if self.hold_start is None:

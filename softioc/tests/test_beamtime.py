@@ -39,7 +39,7 @@ def test_pressure_cycles_and_restart_restore_without_invented_transition(tmp_pat
         event(recorder, t, "pressure", pressure)
     assert recorder.outputs()["FullPumpCount"] == 1
     assert recorder.outputs()["ClosedPumpedCount"] == 1
-    assert recorder.outputs()["LastPump"] == 6
+    assert recorder.outputs()["LastPump"] == 5
     store.commit(recorder.events, recorder.cycles, recorder.snapshot())
     store.close()
     store = Store(db, "window1", "config")
@@ -48,7 +48,7 @@ def test_pressure_cycles_and_restart_restore_without_invented_transition(tmp_pat
     event(recovered, 1, "pressure", 0.003)
     assert recovered.outputs()["CloseCount"] == 1
     assert recovered.outputs()["FullPumpCount"] == 1
-    assert recovered.outputs()["LastPump"] == 6
+    assert recovered.outputs()["LastPump"] == 5
     store.close()
 
 
@@ -139,7 +139,7 @@ store = Store(Path(sys.argv[1]), 'window', 'config', create=True)
 rec = Recorder()
 rec.event('valve', Sample(0, 0))
 rec.event('pressure', Sample(800, 1))
-rec.event('pressure', Sample(699, 2))
+rec.event('pressure', Sample(599, 2))
 store.commit(rec.events, rec.cycles, rec.snapshot())
 # This later event is deliberately uncommitted.
 rec.event('pressure', Sample(400, 3))
@@ -164,7 +164,7 @@ def test_interrupted_attempt_and_bounded_backlog():
     recorder = Recorder()
     event(recorder, 0, "valve", 0)
     event(recorder, 1, "pressure", 800)
-    event(recorder, 2, "pressure", 699)
+    event(recorder, 2, "pressure", 599)
     event(recorder, 3, "valve", 1)
     assert recorder.interrupted == 1
     assert recorder.cycles[0]["interrupted"]

@@ -68,6 +68,23 @@
       </action>
     </actions>
   </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.ActionButton" version="1.0.0">
+    <name>open_beamline_schematic.opi</name>
+    <x>1110</x>
+    <y>60</y>
+    <width>240</width>
+    <height>28</height>
+    <text>Beamline schematic</text>
+    <actions hook="false" hook_all="false">
+      <action type="OPEN_DISPLAY">
+        <path>beamline_schematic.opi</path>
+        <mode>0</mode>
+        <macros>
+          <include_parent_macros>true</include_parent_macros>
+        </macros>
+      </action>
+    </actions>
+  </widget>
   <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
     <name>header_Input</name>
     <x>20</x>
@@ -146,7 +163,7 @@
     <y>175</y>
     <width>220</width>
     <height>28</height>
-    <pv_name>$(P)Pressure:Downstream:RawText-I</pv_name>
+    <pv_name>$(P)Pressure:Downstream:Display-I</pv_name>
     <format_type>4</format_type>
     <precision>6</precision>
     <precision_from_pv>false</precision_from_pv>
@@ -238,7 +255,7 @@
     <y>235</y>
     <width>220</width>
     <height>28</height>
-    <pv_name>$(P)Pressure:Sample:RawText-I</pv_name>
+    <pv_name>$(P)Pressure:Sample:Display-I</pv_name>
     <format_type>4</format_type>
     <precision>6</precision>
     <precision_from_pv>false</precision_from_pv>

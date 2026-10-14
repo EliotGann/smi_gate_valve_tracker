@@ -24,6 +24,7 @@ INPUT_FIELDS = {
     "Status": ":Alarm-I",
     "Timestamp": ":SourceTime-I",
     "TimeText": ":SourceTimeText-I",
+    "Display": ":Display-I",
     "ReadTime": ":ReadTime-I",
     "ChangeTime": ":ChangeTime-I",
     "ReadAge": ":ReadAgeText-I",
@@ -41,6 +42,15 @@ TREND_SUFFIXES = {
 }
 APP_FIELDS = {
     "Window": ("Window:ID-I", "", None),
+    "InstalledTime": ("Window:InstalledTime-I", float("nan"), "s"),
+    "InstalledText": ("Window:InstalledText-I", "Unknown installation date", None),
+    "PumpedTimeText": ("Window:PumpedTimeText-I", "0 days 0:00:00", None),
+    "BeamTimeText": ("Window:BeamTimeText-I", "0 days 0:00:00", None),
+    "HoldRemainingText": ("Procedure:HoldRemainingText-I", "", None),
+    "PumpElapsedText": ("Pump:ElapsedText-I", "N/A", None),
+    "ChangeReply": ("Window:ChangeReply-I", "No pending change", None),
+    "ChangeReceipt": ("Window:ChangeReceipt-I", "No window replacement recorded", None),
+    "ChangeRemaining": ("Window:ChangeRemaining-I", 0.0, "s"),
     "Session": ("Session:ID-I", "", None),
     "Storage": ("Storage:State-Sts", "Starting", None),
     "Commit": ("Storage:Seq-I", 0.0, ""),
@@ -95,3 +105,6 @@ for label in ("100", "10", "1", "0p1"):
 
 def input_suffix(name: str, field: str) -> str:
     return INPUT_STEMS[name] + INPUT_FIELDS[field]
+
+
+CHANGE_COMMAND = "Window:Change-Cmd"

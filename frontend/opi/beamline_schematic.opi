@@ -1,0 +1,1126 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<display typeId="org.csstudio.opibuilder.Display" version="1.0.0">
+  <name>SMI KaptonMon | Installed window monitor | beam travels RIGHT to LEFT</name>
+  <width>1680</width>
+  <height>1100</height>
+  <show_grid>false</show_grid>
+  <macros>
+    <include_parent_macros>true</include_parent_macros>
+    <P>XF:12IDC-ES{KaptonMon:1}</P>
+  </macros>
+  <background_color>
+    <color red="245" green="245" blue="245" />
+  </background_color>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>title</name>
+    <x>20</x>
+    <y>20</y>
+    <width>1620</width>
+    <height>28</height>
+    <text>SMI KaptonMon | Installed window monitor | beam travels RIGHT to LEFT</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.ActionButton" version="1.0.0">
+    <name>open_window_details.opi</name>
+    <x>1120</x>
+    <y>65</y>
+    <width>240</width>
+    <height>28</height>
+    <text>Detailed statistics</text>
+    <actions hook="false" hook_all="false">
+      <action type="OPEN_DISPLAY">
+        <path>window_details.opi</path>
+        <mode>0</mode>
+        <macros>
+          <include_parent_macros>true</include_parent_macros>
+        </macros>
+      </action>
+    </actions>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.ActionButton" version="1.0.0">
+    <name>open_commissioning_overview.opi</name>
+    <x>1390</x>
+    <y>65</y>
+    <width>240</width>
+    <height>28</height>
+    <text>Input diagnostics</text>
+    <actions hook="false" hook_all="false">
+      <action type="OPEN_DISPLAY">
+        <path>commissioning_overview.opi</path>
+        <mode>0</mode>
+        <macros>
+          <include_parent_macros>true</include_parent_macros>
+        </macros>
+      </action>
+    </actions>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>heartbeat</name>
+    <x>20</x>
+    <y>65</y>
+    <width>120</width>
+    <height>28</height>
+    <pv_name>$(P)Heartbeat-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>heartbeat_label</name>
+    <x>150</x>
+    <y>65</y>
+    <width>400</width>
+    <height>28</height>
+    <text>IOC heartbeat (must advance)</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Rectangle" version="1.0.0">
+    <name>sample_chamber</name>
+    <x>840</x>
+    <y>230</y>
+    <width>440</width>
+    <height>360</height>
+    <background_color>
+      <color red="140" green="145" blue="150" />
+    </background_color>
+    <foreground_color>
+      <color red="35" green="45" blue="55" />
+    </foreground_color>
+    <line_color>
+      <color red="35" green="45" blue="55" />
+    </line_color>
+    <line_width>2</line_width>
+    <transparent>false</transparent>
+    <rules>
+      <rule name="background_color" prop_id="background_color" out_exp="false">
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 0">
+          <value>
+            <color red="190" green="222" blue="245" />
+          </value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 1">
+          <value>
+            <color red="245" green="245" blue="245" />
+          </value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 2">
+          <value>
+            <color red="249" green="220" blue="145" />
+          </value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 3">
+          <value>
+            <color red="210" green="205" blue="240" />
+          </value>
+        </exp>
+        <pv trig="true">$(P)View:Sample-Sts</pv>
+      </rule>
+    </rules>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Rectangle" version="1.0.0">
+    <name>intermediate_section</name>
+    <x>350</x>
+    <y>290</y>
+    <width>370</width>
+    <height>240</height>
+    <background_color>
+      <color red="140" green="145" blue="150" />
+    </background_color>
+    <foreground_color>
+      <color red="35" green="45" blue="55" />
+    </foreground_color>
+    <line_color>
+      <color red="35" green="45" blue="55" />
+    </line_color>
+    <line_width>2</line_width>
+    <transparent>false</transparent>
+    <rules>
+      <rule name="background_color" prop_id="background_color" out_exp="false">
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 0">
+          <value>
+            <color red="190" green="222" blue="245" />
+          </value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 1">
+          <value>
+            <color red="245" green="245" blue="245" />
+          </value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 2">
+          <value>
+            <color red="249" green="220" blue="145" />
+          </value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 3">
+          <value>
+            <color red="210" green="205" blue="240" />
+          </value>
+        </exp>
+        <pv trig="true">$(P)View:Intermediate-Sts</pv>
+      </rule>
+    </rules>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Rectangle" version="1.0.0">
+    <name>detector_body</name>
+    <x>35</x>
+    <y>325</y>
+    <width>180</width>
+    <height>170</height>
+    <background_color>
+      <color red="220" green="225" blue="230" />
+    </background_color>
+    <foreground_color>
+      <color red="35" green="45" blue="55" />
+    </foreground_color>
+    <line_color>
+      <color red="35" green="45" blue="55" />
+    </line_color>
+    <line_width>2</line_width>
+    <transparent>false</transparent>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>detector_title</name>
+    <x>55</x>
+    <y>350</y>
+    <width>150</width>
+    <height>28</height>
+    <text>Pilatus 2M</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>detector_subtitle</name>
+    <x>45</x>
+    <y>455</y>
+    <width>165</width>
+    <height>28</height>
+    <text>Detector vacuum</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>sample_title</name>
+    <x>865</x>
+    <y>250</y>
+    <width>400</width>
+    <height>28</height>
+    <text>WAXS / SAMPLE CHAMBER</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>intermediate_title</name>
+    <x>370</x>
+    <y>310</y>
+    <width>340</width>
+    <height>28</height>
+    <text>INTERMEDIATE / TCG:9</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>sample_state</name>
+    <x>865</x>
+    <y>295</y>
+    <width>400</width>
+    <height>28</height>
+    <text>UNKNOWN / NO DATA</text>
+    <rules>
+      <rule name="text" prop_id="text" out_exp="false">
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 0">
+          <value>PUMPED (&lt;0.01 mbar, raw)</value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 1">
+          <value>VENTED RANGE (&gt;=600 mbar)</value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 2">
+          <value>BETWEEN TARGETS</value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 3">
+          <value>UNDER RANGE (reported zero)</value>
+        </exp>
+        <pv trig="true">$(P)View:Sample-Sts</pv>
+      </rule>
+    </rules>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>intermediate_state</name>
+    <x>370</x>
+    <y>345</y>
+    <width>340</width>
+    <height>28</height>
+    <text>UNKNOWN / NO DATA</text>
+    <rules>
+      <rule name="text" prop_id="text" out_exp="false">
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 0">
+          <value>PUMPED (&lt;0.01 mbar, raw)</value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 1">
+          <value>VENTED RANGE (&gt;=600 mbar)</value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 2">
+          <value>BETWEEN TARGETS</value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 3">
+          <value>UNDER RANGE (reported zero)</value>
+        </exp>
+        <pv trig="true">$(P)View:Intermediate-Sts</pv>
+      </rule>
+    </rules>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>sample_pressure</name>
+    <x>865</x>
+    <y>510</y>
+    <width>240</width>
+    <height>28</height>
+    <pv_name>$(P)Pressure:Sample:Display-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>sample_units</name>
+    <x>1110</x>
+    <y>510</y>
+    <width>160</width>
+    <height>28</height>
+    <text>mbar (TCG:7)</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>downstream_pressure</name>
+    <x>370</x>
+    <y>455</y>
+    <width>210</width>
+    <height>28</height>
+    <pv_name>$(P)Pressure:Downstream:Display-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>downstream_units</name>
+    <x>590</x>
+    <y>455</y>
+    <width>100</width>
+    <height>28</height>
+    <text>mbar</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.polyline" version="1.0.0">
+    <name>beam_axis</name>
+    <x>160</x>
+    <y>410</y>
+    <width>1120</width>
+    <height>1</height>
+    <foreground_color>
+      <color red="190" green="190" blue="190" />
+    </foreground_color>
+    <background_color>
+      <color red="190" green="190" blue="190" />
+    </background_color>
+    <line_color>
+      <color red="190" green="190" blue="190" />
+    </line_color>
+    <line_width>4</line_width>
+    <transparent>true</transparent>
+    <points>
+      <point x="160" y="410" />
+      <point x="1280" y="410" />
+    </points>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.polygon" version="1.0.0">
+    <name>incoming_beam</name>
+    <x>1300</x>
+    <y>377</y>
+    <width>325</width>
+    <height>66</height>
+    <foreground_color>
+      <color red="140" green="145" blue="150" />
+    </foreground_color>
+    <background_color>
+      <color red="140" green="145" blue="150" />
+    </background_color>
+    <line_color>
+      <color red="140" green="145" blue="150" />
+    </line_color>
+    <line_width>4</line_width>
+    <transparent>false</transparent>
+    <points>
+      <point x="1625" y="396" />
+      <point x="1370" y="396" />
+      <point x="1370" y="377" />
+      <point x="1300" y="410" />
+      <point x="1370" y="443" />
+      <point x="1370" y="424" />
+      <point x="1625" y="424" />
+    </points>
+    <rules>
+      <rule name="foreground_color" prop_id="foreground_color" out_exp="false">
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 0">
+          <value>
+            <color red="210" green="45" blue="45" />
+          </value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 1">
+          <value>
+            <color red="0" green="155" blue="75" />
+          </value>
+        </exp>
+        <pv trig="true">$(P)View:Beam-Sts</pv>
+      </rule>
+      <rule name="background_color" prop_id="background_color" out_exp="false">
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 0">
+          <value>
+            <color red="210" green="45" blue="45" />
+          </value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 1">
+          <value>
+            <color red="0" green="155" blue="75" />
+          </value>
+        </exp>
+        <pv trig="true">$(P)View:Beam-Sts</pv>
+      </rule>
+      <rule name="line_color" prop_id="line_color" out_exp="false">
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 0">
+          <value>
+            <color red="210" green="45" blue="45" />
+          </value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 1">
+          <value>
+            <color red="0" green="155" blue="75" />
+          </value>
+        </exp>
+        <pv trig="true">$(P)View:Beam-Sts</pv>
+      </rule>
+    </rules>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>beam_state</name>
+    <x>1300</x>
+    <y>325</y>
+    <width>360</width>
+    <height>28</height>
+    <text>UNKNOWN / NO DATA</text>
+    <rules>
+      <rule name="text" prop_id="text" out_exp="false">
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 0">
+          <value>OFF: shutter closed</value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 1">
+          <value>ON: all shutters open</value>
+        </exp>
+        <pv trig="true">$(P)View:Beam-Sts</pv>
+      </rule>
+    </rules>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>beam_note</name>
+    <x>1300</x>
+    <y>355</y>
+    <width>370</width>
+    <height>28</height>
+    <text>Shutter eligibility, not measured flux</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>energy_label</name>
+    <x>1310</x>
+    <y>485</y>
+    <width>340</width>
+    <height>28</height>
+    <text>Photon energy (keV)</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>energy</name>
+    <x>1310</x>
+    <y>515</y>
+    <width>330</width>
+    <height>28</height>
+    <pv_name>$(P)View:Energy-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>bpm_label</name>
+    <x>1310</x>
+    <y>555</y>
+    <width>340</width>
+    <height>28</height>
+    <text>BPM3 SumX (raw intensity)</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>bpm_intensity</name>
+    <x>1310</x>
+    <y>585</y>
+    <width>330</width>
+    <height>28</height>
+    <pv_name>$(P)View:BPM3-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>bpm_note</name>
+    <x>1300</x>
+    <y>615</y>
+    <width>370</width>
+    <height>28</height>
+    <text>Uncalibrated; does not gate beam</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Rectangle" version="1.0.0">
+    <name>Kapton_housing</name>
+    <x>757</x>
+    <y>190</y>
+    <width>46</width>
+    <height>375</height>
+    <background_color>
+      <color red="225" green="225" blue="225" />
+    </background_color>
+    <foreground_color>
+      <color red="35" green="45" blue="55" />
+    </foreground_color>
+    <line_color>
+      <color red="35" green="45" blue="55" />
+    </line_color>
+    <line_width>2</line_width>
+    <transparent>false</transparent>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>Kapton_label</name>
+    <x>680</x>
+    <y>150</y>
+    <width>250</width>
+    <height>28</height>
+    <text>GV6W / KAPTON</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Rectangle" version="1.0.0">
+    <name>Kapton_unknown</name>
+    <x>768</x>
+    <y>355</y>
+    <width>24</width>
+    <height>110</height>
+    <background_color>
+      <color red="140" green="145" blue="150" />
+    </background_color>
+    <foreground_color>
+      <color red="35" green="45" blue="55" />
+    </foreground_color>
+    <line_color>
+      <color red="35" green="45" blue="55" />
+    </line_color>
+    <line_width>2</line_width>
+    <transparent>false</transparent>
+    <rules>
+      <rule name="visible" prop_id="visible" out_exp="false">
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 0">
+          <value>false</value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 1">
+          <value>false</value>
+        </exp>
+        <pv trig="true">$(P)View:Kapton-Sts</pv>
+      </rule>
+    </rules>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Rectangle" version="1.0.0">
+    <name>Kapton_blade</name>
+    <x>773</x>
+    <y>230</y>
+    <width>14</width>
+    <height>110</height>
+    <background_color>
+      <color red="90" green="115" blue="135" />
+    </background_color>
+    <foreground_color>
+      <color red="35" green="45" blue="55" />
+    </foreground_color>
+    <line_color>
+      <color red="35" green="45" blue="55" />
+    </line_color>
+    <line_width>2</line_width>
+    <transparent>false</transparent>
+    <visible>false</visible>
+    <rules>
+      <rule name="visible" prop_id="visible" out_exp="false">
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 1">
+          <value>true</value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 0">
+          <value>false</value>
+        </exp>
+        <pv trig="true">$(P)View:Kapton-Sts</pv>
+      </rule>
+      <rule name="y" prop_id="y" out_exp="false">
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 1">
+          <value>230</value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 0">
+          <value>355</value>
+        </exp>
+        <pv trig="true">$(P)View:Kapton-Sts</pv>
+      </rule>
+    </rules>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>Kapton_position</name>
+    <x>690</x>
+    <y>600</y>
+    <width>270</width>
+    <height>28</height>
+    <text>UNKNOWN / NO DATA</text>
+    <rules>
+      <rule name="text" prop_id="text" out_exp="false">
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 0">
+          <value>IN PLACE / CLOSED</value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 1">
+          <value>RETRACTED / OPEN</value>
+        </exp>
+        <pv trig="true">$(P)View:Kapton-Sts</pv>
+      </rule>
+    </rules>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Rectangle" version="1.0.0">
+    <name>DetectorValve_housing</name>
+    <x>257</x>
+    <y>190</y>
+    <width>46</width>
+    <height>375</height>
+    <background_color>
+      <color red="225" green="225" blue="225" />
+    </background_color>
+    <foreground_color>
+      <color red="35" green="45" blue="55" />
+    </foreground_color>
+    <line_color>
+      <color red="35" green="45" blue="55" />
+    </line_color>
+    <line_width>2</line_width>
+    <transparent>false</transparent>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>DetectorValve_label</name>
+    <x>180</x>
+    <y>150</y>
+    <width>250</width>
+    <height>28</height>
+    <text>GV7 / DETECTOR</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Rectangle" version="1.0.0">
+    <name>DetectorValve_unknown</name>
+    <x>268</x>
+    <y>355</y>
+    <width>24</width>
+    <height>110</height>
+    <background_color>
+      <color red="140" green="145" blue="150" />
+    </background_color>
+    <foreground_color>
+      <color red="35" green="45" blue="55" />
+    </foreground_color>
+    <line_color>
+      <color red="35" green="45" blue="55" />
+    </line_color>
+    <line_width>2</line_width>
+    <transparent>false</transparent>
+    <rules>
+      <rule name="visible" prop_id="visible" out_exp="false">
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 0">
+          <value>false</value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 1">
+          <value>false</value>
+        </exp>
+        <pv trig="true">$(P)View:DetectorValve-Sts</pv>
+      </rule>
+    </rules>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Rectangle" version="1.0.0">
+    <name>DetectorValve_blade</name>
+    <x>273</x>
+    <y>230</y>
+    <width>14</width>
+    <height>110</height>
+    <background_color>
+      <color red="90" green="115" blue="135" />
+    </background_color>
+    <foreground_color>
+      <color red="35" green="45" blue="55" />
+    </foreground_color>
+    <line_color>
+      <color red="35" green="45" blue="55" />
+    </line_color>
+    <line_width>2</line_width>
+    <transparent>false</transparent>
+    <visible>false</visible>
+    <rules>
+      <rule name="visible" prop_id="visible" out_exp="false">
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 1">
+          <value>true</value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 0">
+          <value>true</value>
+        </exp>
+        <pv trig="true">$(P)View:DetectorValve-Sts</pv>
+      </rule>
+      <rule name="y" prop_id="y" out_exp="false">
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 1">
+          <value>230</value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 0">
+          <value>355</value>
+        </exp>
+        <pv trig="true">$(P)View:DetectorValve-Sts</pv>
+      </rule>
+    </rules>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>DetectorValve_position</name>
+    <x>190</x>
+    <y>600</y>
+    <width>270</width>
+    <height>28</height>
+    <text>UNKNOWN / NO DATA</text>
+    <rules>
+      <rule name="text" prop_id="text" out_exp="false">
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 0">
+          <value>CLOSED / IN</value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 1">
+          <value>OPEN / OUT</value>
+        </exp>
+        <pv trig="true">$(P)View:DetectorValve-Sts</pv>
+      </rule>
+    </rules>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.polyline" version="1.0.0">
+    <name>kapton_membrane_0</name>
+    <x>780</x>
+    <y>350</y>
+    <width>1</width>
+    <height>120</height>
+    <foreground_color>
+      <color red="210" green="135" blue="20" />
+    </foreground_color>
+    <background_color>
+      <color red="210" green="135" blue="20" />
+    </background_color>
+    <line_color>
+      <color red="210" green="135" blue="20" />
+    </line_color>
+    <line_width>4</line_width>
+    <transparent>true</transparent>
+    <points>
+      <point x="780" y="350" />
+      <point x="780" y="470" />
+    </points>
+    <visible>false</visible>
+    <rules>
+      <rule name="visible" prop_id="visible" out_exp="false">
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pvSev1 &gt;= 0 &amp;&amp; pv0 == 0 &amp;&amp; pv1 == 0">
+          <value>true</value>
+        </exp>
+        <pv trig="true">$(P)View:Bow-Sts</pv>
+        <pv trig="true">$(P)View:Kapton-Sts</pv>
+      </rule>
+    </rules>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.polyline" version="1.0.0">
+    <name>kapton_membrane_1</name>
+    <x>730</x>
+    <y>350</y>
+    <width>50</width>
+    <height>120</height>
+    <foreground_color>
+      <color red="210" green="135" blue="20" />
+    </foreground_color>
+    <background_color>
+      <color red="210" green="135" blue="20" />
+    </background_color>
+    <line_color>
+      <color red="210" green="135" blue="20" />
+    </line_color>
+    <line_width>4</line_width>
+    <transparent>true</transparent>
+    <points>
+      <point x="780" y="350" />
+      <point x="755" y="365" />
+      <point x="735" y="390" />
+      <point x="730" y="410" />
+      <point x="735" y="430" />
+      <point x="755" y="455" />
+      <point x="780" y="470" />
+    </points>
+    <visible>false</visible>
+    <rules>
+      <rule name="visible" prop_id="visible" out_exp="false">
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pvSev1 &gt;= 0 &amp;&amp; pv0 == 1 &amp;&amp; pv1 == 0">
+          <value>true</value>
+        </exp>
+        <pv trig="true">$(P)View:Bow-Sts</pv>
+        <pv trig="true">$(P)View:Kapton-Sts</pv>
+      </rule>
+    </rules>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.polyline" version="1.0.0">
+    <name>kapton_membrane_2</name>
+    <x>780</x>
+    <y>350</y>
+    <width>50</width>
+    <height>120</height>
+    <foreground_color>
+      <color red="210" green="135" blue="20" />
+    </foreground_color>
+    <background_color>
+      <color red="210" green="135" blue="20" />
+    </background_color>
+    <line_color>
+      <color red="210" green="135" blue="20" />
+    </line_color>
+    <line_width>4</line_width>
+    <transparent>true</transparent>
+    <points>
+      <point x="780" y="350" />
+      <point x="805" y="365" />
+      <point x="825" y="390" />
+      <point x="830" y="410" />
+      <point x="825" y="430" />
+      <point x="805" y="455" />
+      <point x="780" y="470" />
+    </points>
+    <visible>false</visible>
+    <rules>
+      <rule name="visible" prop_id="visible" out_exp="false">
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pvSev1 &gt;= 0 &amp;&amp; pv0 == 2 &amp;&amp; pv1 == 0">
+          <value>true</value>
+        </exp>
+        <pv trig="true">$(P)View:Bow-Sts</pv>
+        <pv trig="true">$(P)View:Kapton-Sts</pv>
+      </rule>
+    </rules>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>bow_state</name>
+    <x>570</x>
+    <y>650</y>
+    <width>670</width>
+    <height>28</height>
+    <text>UNKNOWN / NO DATA</text>
+    <rules>
+      <rule name="text" prop_id="text" out_exp="false">
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 0">
+          <value>No bow shown (balanced or retracted)</value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 1">
+          <value>Pressure pushes LEFT toward intermediate section</value>
+        </exp>
+        <exp bool_exp="pvSev0 &gt;= 0 &amp;&amp; pv0 == 2">
+          <value>Pressure pushes RIGHT toward sample chamber</value>
+        </exp>
+        <pv trig="true">$(P)View:Bow-Sts</pv>
+      </rule>
+    </rules>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>bow_note</name>
+    <x>390</x>
+    <y>685</y>
+    <width>1050</width>
+    <height>28</height>
+    <text>Bow is qualitative, exaggerated; 1 mbar display deadband. Not a strain measurement.</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Rectangle" version="1.0.0">
+    <name>window_summary_box</name>
+    <x>350</x>
+    <y>735</y>
+    <width>580</width>
+    <height>295</height>
+    <background_color>
+      <color red="245" green="245" blue="245" />
+    </background_color>
+    <foreground_color>
+      <color red="35" green="45" blue="55" />
+    </foreground_color>
+    <line_color>
+      <color red="35" green="45" blue="55" />
+    </line_color>
+    <line_width>2</line_width>
+    <transparent>false</transparent>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Rectangle" version="1.0.0">
+    <name>state_box</name>
+    <x>950</x>
+    <y>735</y>
+    <width>710</width>
+    <height>295</height>
+    <background_color>
+      <color red="245" green="245" blue="245" />
+    </background_color>
+    <foreground_color>
+      <color red="35" green="45" blue="55" />
+    </foreground_color>
+    <line_color>
+      <color red="35" green="45" blue="55" />
+    </line_color>
+    <line_width>2</line_width>
+    <transparent>false</transparent>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>window_summary_title</name>
+    <x>370</x>
+    <y>742</y>
+    <width>540</width>
+    <height>28</height>
+    <text>INSTALLED KAPTON WINDOW</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>Window_label</name>
+    <x>370</x>
+    <y>780</y>
+    <width>180</width>
+    <height>28</height>
+    <text>Window</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>Window</name>
+    <x>555</x>
+    <y>780</y>
+    <width>360</width>
+    <height>28</height>
+    <pv_name>$(P)Window:ID-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>InstalledText_label</name>
+    <x>370</x>
+    <y>814</y>
+    <width>180</width>
+    <height>28</height>
+    <text>Installed</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>InstalledText</name>
+    <x>555</x>
+    <y>814</y>
+    <width>360</width>
+    <height>28</height>
+    <pv_name>$(P)Window:InstalledText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>PumpedTimeText_label</name>
+    <x>370</x>
+    <y>848</y>
+    <width>180</width>
+    <height>28</height>
+    <text>Closed + pumped</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>PumpedTimeText</name>
+    <x>555</x>
+    <y>848</y>
+    <width>360</width>
+    <height>28</height>
+    <pv_name>$(P)Window:PumpedTimeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>BeamTimeText_label</name>
+    <x>370</x>
+    <y>882</y>
+    <width>180</width>
+    <height>28</height>
+    <text>In beam (shutters)</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>BeamTimeText</name>
+    <x>555</x>
+    <y>882</y>
+    <width>360</width>
+    <height>28</height>
+    <pv_name>$(P)Window:BeamTimeText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>FullPumpCount_label</name>
+    <x>370</x>
+    <y>916</y>
+    <width>180</width>
+    <height>28</height>
+    <text>Pump cycles</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>FullPumpCount</name>
+    <x>555</x>
+    <y>916</y>
+    <width>360</width>
+    <height>28</height>
+    <pv_name>$(P)Pump:Count-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.ActionButton" version="1.0.0">
+    <name>open_change_window.opi</name>
+    <x>550</x>
+    <y>975</y>
+    <width>240</width>
+    <height>28</height>
+    <text>Change installed window...</text>
+    <actions hook="false" hook_all="false">
+      <action type="OPEN_DISPLAY">
+        <path>change_window.opi</path>
+        <mode>0</mode>
+        <macros>
+          <include_parent_macros>true</include_parent_macros>
+        </macros>
+      </action>
+    </actions>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>state_title</name>
+    <x>970</x>
+    <y>742</y>
+    <width>670</width>
+    <height>28</height>
+    <text>TRACKER STATE / PROCEDURE</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>PumpState_label</name>
+    <x>970</x>
+    <y>780</y>
+    <width>150</width>
+    <height>28</height>
+    <text>Pump</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>PumpState</name>
+    <x>1125</x>
+    <y>780</y>
+    <width>520</width>
+    <height>28</height>
+    <pv_name>$(P)Pump:State-Sts</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>ProcedurePath_label</name>
+    <x>970</x>
+    <y>814</y>
+    <width>150</width>
+    <height>28</height>
+    <text>Path</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>ProcedurePath</name>
+    <x>1125</x>
+    <y>814</y>
+    <width>520</width>
+    <height>28</height>
+    <pv_name>$(P)Procedure:Path-Sts</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>ProcedureState_label</name>
+    <x>970</x>
+    <y>848</y>
+    <width>150</width>
+    <height>28</height>
+    <text>Procedure</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>ProcedureState</name>
+    <x>1125</x>
+    <y>848</y>
+    <width>520</width>
+    <height>28</height>
+    <pv_name>$(P)Procedure:State-Sts</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>HoldRemainingText_label</name>
+    <x>970</x>
+    <y>882</y>
+    <width>150</width>
+    <height>28</height>
+    <text>Hold remaining</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>HoldRemainingText</name>
+    <x>1125</x>
+    <y>882</y>
+    <width>520</width>
+    <height>28</height>
+    <pv_name>$(P)Procedure:HoldRemainingText-I</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>ProcedureAlarm_label</name>
+    <x>970</x>
+    <y>916</y>
+    <width>150</width>
+    <height>28</height>
+    <text>Alarm</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>ProcedureAlarm</name>
+    <x>1125</x>
+    <y>916</y>
+    <width>520</width>
+    <height>28</height>
+    <pv_name>$(P)Procedure:Alarm-Sts</pv_name>
+    <format_type>4</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>rate_label</name>
+    <x>970</x>
+    <y>975</y>
+    <width>220</width>
+    <height>28</height>
+    <text>Rise (mbar/s)</text>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+    <name>rate</name>
+    <x>1200</x>
+    <y>975</y>
+    <width>440</width>
+    <height>28</height>
+    <pv_name>$(P)VacWatch:Rate-I</pv_name>
+    <format_type>6</format_type>
+    <precision>6</precision>
+    <precision_from_pv>false</precision_from_pv>
+    <show_units>false</show_units>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <name>legend</name>
+    <x>30</x>
+    <y>1050</y>
+    <width>1620</width>
+    <height>28</height>
+    <text>Gray = unknown. Blue = pumped. White = vented. Amber = between targets. Purple = under range.</text>
+  </widget>
+</display>

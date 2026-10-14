@@ -16,11 +16,12 @@ from pathlib import Path
 from statistics import median
 
 from .contract import METRICS
-from .cycles import PumpTracker
+from .cycles import PumpTracker, Thresholds
 from .diagnostics import Diagnostics
 from .intervals import Conditions, account_interval
 from .procedure import Procedure
 from .retention import POLICY, EventSelector, SnapshotSelector
+from .time_text import duration_text
 
 SCHEMA = 1
 
@@ -32,20 +33,22 @@ def encode(value):
 class Store:
     """One writer; init is explicit, restart requires matching window/config.
 
-    Methods run serially in a worker thread, never concurrently. WAL/FULL commits
+    Methods run serially in a worker thread, never concurrently. DELETE/FULL commits
     atomically include raw events, cycles, observation snapshots and totals.
     """
 
     def __init__(
         self,
         path: Path,
-        window: str,
+        window: str | None,
         config: str,
         *,
         create: bool = False,
         accept_config_change: bool = False,
     ):
-        if not window.strip() or len(window.encode()) > 128:
+        if (window is None and create) or (
+            window is not None and (not window.strip() or len(window.encode()) > 128)
+        ):
             raise ValueError("Window ID must be nonempty and <=128 UTF-8 bytes")
         self.lock = path.with_suffix(path.suffix + ".lock").open("a")
         try:
@@ -55,7 +58,11 @@ class Store:
             self.db = sqlite3.connect(
                 f"{path.resolve().as_uri()}?mode=rw", uri=True, timeout=2, check_same_thread=False
             )
-            self.db.execute("PRAGMA journal_mode=WAL")
+            # Rollback journal supports the deployment NFS path; WAL does not.
+            # This also checkpoints a stopped legacy WAL database on upgrade.
+            mode = self.db.execute("PRAGMA journal_mode=DELETE").fetchone()[0]
+            if mode != "delete":
+                raise RuntimeError("Could not enable SQLite rollback journal mode")
             self.db.execute("PRAGMA synchronous=FULL")
             digest = hashlib.sha256(config.encode()).hexdigest()
             if create:
@@ -77,13 +84,34 @@ class Store:
             identity = self.db.execute(
                 "SELECT schema, window, config_hash FROM identity"
             ).fetchone()
-            if identity[:2] != (SCHEMA, window):
+            if identity[0] != SCHEMA or (window is not None and identity[1] != window):
                 raise ValueError("Database schema/window/config differs; use its original identity")
             if identity[2] != digest and not accept_config_change:
                 raise ValueError(
                     "Database config differs; use --accept-config-change to record an epoch"
                 )
             with self.db:
+                self.db.execute(
+                    "CREATE TABLE IF NOT EXISTS installations "
+                    "(id TEXT PRIMARY KEY, installed_utc REAL, retired_utc REAL, "
+                    "revision INTEGER, final_state TEXT, metadata TEXT)"
+                )
+                self.db.execute(
+                    "INSERT OR IGNORE INTO installations VALUES(?,NULL,NULL,0,NULL,?)",
+                    (identity[1], encode({"date_source": "legacy/initial date unknown"})),
+                )
+                self.db.execute(
+                    "CREATE TABLE IF NOT EXISTS session_windows "
+                    "(session TEXT PRIMARY KEY, window_id TEXT)"
+                )
+                self.db.execute(
+                    "INSERT OR IGNORE INTO session_windows SELECT id,? FROM sessions",
+                    (identity[1],),
+                )
+                self.db.execute(
+                    "CREATE TABLE IF NOT EXISTS window_changes "
+                    "(request_id TEXT PRIMARY KEY, utc REAL, receipt TEXT)"
+                )
                 self.db.execute(
                     "CREATE TABLE IF NOT EXISTS config_epochs "
                     "(session TEXT, utc REAL, config_hash TEXT, config TEXT)"
@@ -104,9 +132,17 @@ class Store:
             self.snapshot_rows = self.db.execute("SELECT count(*) FROM snapshots").fetchone()[0]
             self.path = path
             self.session = str(uuid.uuid4())
-            self.window = window
+            self.window = identity[1]
+            self.installed_utc, self.revision = self.db.execute(
+                "SELECT installed_utc,revision FROM installations WHERE id=?", (self.window,)
+            ).fetchone()
+            receipt = self.db.execute(
+                "SELECT receipt FROM window_changes ORDER BY utc DESC LIMIT 1"
+            ).fetchone()
+            self.receipt = receipt[0] if receipt else "No window replacement recorded"
             self.config = config
             self.db.execute("INSERT INTO sessions VALUES (?,?,NULL)", (self.session, time.time()))
+            self.db.execute("INSERT INTO session_windows VALUES(?,?)", (self.session, self.window))
             self.db.execute(
                 "INSERT INTO config_epochs VALUES(?,?,?,?)",
                 (self.session, time.time(), digest, config),
@@ -118,12 +154,18 @@ class Store:
             self.lock.close()
             raise
 
-    def commit(self, events, cycles, state, *, final=False):
+    def commit(self, events, cycles, state, *, final=False, replacement=None):
         now = time.time()
         sequence = self.sequence + 1
         # Work on an independent checkpoint; never mutate the reducer's snapshot.
-        checkpoint = {**state, "storage_sequence": sequence, "history_policy": POLICY}
-        important = any(
+        checkpoint = {
+            **state,
+            "storage_sequence": sequence,
+            "history_policy": POLICY,
+            "window_id": self.window,
+            "installed_utc": self.installed_utc,
+        }
+        important = replacement is not None or any(
             name in ("valve", "downstream_valve", "procedure", "restart_gap")
             or payload.get("history_reason") in ("quality", "receipt_gap")
             for _, _, name, payload in events
@@ -149,16 +191,82 @@ class Store:
                     (sequence, now, self.session, encode(checkpoint)),
                 )
             self.db.execute("INSERT OR REPLACE INTO checkpoint VALUES(1,?)", (encode(checkpoint),))
+            if replacement is not None:
+                proposal, request_id, installed_utc, fresh = replacement
+                current = self.db.execute("SELECT window FROM identity").fetchone()[0]
+                revision = self.db.execute(
+                    "SELECT revision FROM installations WHERE id=?", (current,)
+                ).fetchone()[0]
+                if current != proposal.current_id or revision != proposal.current_revision:
+                    raise ValueError("Current window identity/revision changed")
+                new_revision = revision + 1
+                receipt = encode(
+                    {
+                        "request_id": request_id,
+                        "old_id": current,
+                        "new_id": proposal.new_id,
+                        "committed_utc": now,
+                    }
+                )
+                self.db.execute(
+                    "UPDATE installations SET retired_utc=?,final_state=?,metadata=? WHERE id=?",
+                    (now, encode(state), encode(asdict(proposal)), current),
+                )
+                self.db.execute(
+                    "INSERT INTO installations VALUES(?,?,NULL,?,NULL,?)",
+                    (proposal.new_id, installed_utc, new_revision, encode(asdict(proposal))),
+                )
+                self.db.execute(
+                    "INSERT INTO window_changes VALUES(?,?,?)", (request_id, now, receipt)
+                )
+                self.db.execute("UPDATE identity SET window=?", (proposal.new_id,))
+                self.db.execute("UPDATE sessions SET end_utc=? WHERE id=?", (now, self.session))
+                new_session = str(uuid.uuid4())
+                self.db.execute("INSERT INTO sessions VALUES(?,?,NULL)", (new_session, now))
+                self.db.execute(
+                    "INSERT INTO session_windows VALUES(?,?)", (new_session, proposal.new_id)
+                )
+                self.db.execute(
+                    "INSERT INTO config_epochs VALUES(?,?,?,?)",
+                    (
+                        new_session,
+                        now,
+                        hashlib.sha256(self.config.encode()).hexdigest(),
+                        self.config,
+                    ),
+                )
+                checkpoint = {
+                    **fresh,
+                    "storage_sequence": sequence,
+                    "history_policy": POLICY,
+                    "window_id": proposal.new_id,
+                    "installed_utc": installed_utc,
+                }
+                self.db.execute(
+                    "INSERT OR REPLACE INTO checkpoint VALUES(1,?)", (encode(checkpoint),)
+                )
         self.sequence = sequence
         self.snapshot_selector = selector
         self.event_rows += len(events)
         self.snapshot_rows += int(history)
+        if replacement is not None:
+            self.window, self.session = proposal.new_id, new_session
+            self.installed_utc, self.revision, self.receipt = installed_utc, new_revision, receipt
+            self.snapshot_selector = SnapshotSelector()
         return sequence, now
 
+    def window_exists(self, name):
+        return (
+            self.db.execute("SELECT 1 FROM installations WHERE id=?", (name,)).fetchone()
+            is not None
+        )
+
     def history_outputs(self):
-        """Cheap per-commit counters and file sizes (including the live WAL)."""
+        """Cheap per-commit counters and file sizes (including SQLite sidecars)."""
         size = sum(
-            p.stat().st_size for p in (self.path, Path(str(self.path) + "-wal")) if p.exists()
+            p.stat().st_size
+            for p in (self.path, Path(str(self.path) + "-wal"), Path(str(self.path) + "-journal"))
+            if p.exists()
         )
         return {
             "HistoryRows": float(self.event_rows),
@@ -185,7 +293,7 @@ class Recorder:
     def __init__(self, restored=None, *, hold_seconds=300.0):
         state = restored or {}
         self.inputs = Diagnostics()
-        self.pump = PumpTracker(max_gap_s=5)
+        self.pump = PumpTracker(max_gap_s=5, thresholds=Thresholds(entry_below_mbar=600))
         self.previous = None
         self.offsets = state.get("counts", [0, 0, 0, 0])
         self.interrupted = state.get("interrupted", 0) + int(state.get("active", False))
@@ -196,6 +304,10 @@ class Recorder:
         self.recent = state.get("recent", [])
         self.last = state.get("last")
         self.path_durations = state.get("path_durations", {})
+        if state and state.get("timing_definition") != "qualified-pressure-v3-entry600":
+            # Old durations remain in cycles/last, but don't mix timing definitions
+            # in the new baseline population. Counts and integrated totals persist.
+            self.early, self.recent, self.path_durations = [], [], {}
         self.events = []
         self.cycles = []
         self.watch = {}
@@ -291,6 +403,7 @@ class Recorder:
         if cycle:
             payload = asdict(cycle)
             payload["duration_s"] = cycle.duration_s
+            payload["timing_definition"] = "qualified-pressure-v3-entry600"
             payload["completed_utc"] = time.time()
             payload["operating_path"] = self.procedure.path
             path = self.procedure.path
@@ -350,6 +463,7 @@ class Recorder:
             "recent": self.recent,
             "last": self.last,
             "path_durations": self.path_durations,
+            "timing_definition": "qualified-pressure-v3-entry600",
             "active": self.pump.pump_state in ("candidate", "pumping"),
             "pump_state": self.pump.pump_state,
             "pumped": self.pump.pumped,
@@ -394,6 +508,10 @@ class Recorder:
         for name, fields in self.totals.items():
             result.update({f"{name}_{field}": value for field, value in fields.items()})
         result.update(self.procedure.outputs())
+        result["PumpedTimeText"] = duration_text(self.totals["closed_pumped_s"]["value"])
+        result["BeamTimeText"] = duration_text(self.totals["window_beam_s"]["value"])
+        result["HoldRemainingText"] = duration_text(result["HoldRemaining"])
+        result["PumpElapsedText"] = duration_text(result["PumpElapsed"])
         milestones = (
             {item["pressure_mbar"]: item["elapsed_s"] for item in self.last["milestones"]}
             if self.last

@@ -7,6 +7,13 @@ The service name/prefix is provisional pending facility confirmation:
 
 ## Start the recorder
 
+Deployment defaults to `/nsls2/data/smi/shared/config/kaptondb/history.sqlite`,
+with rotating `kapton-monitor.log` alongside it. Use
+`bash /path/to/softioc/start-monitor.sh` for normal service startup. See
+[storage/file lifecycle](../docs/STORAGE.md) for one-time initialization, window
+records, NFS rollback journaling and migration of existing beamtime history.
+The explicit `--database` below continues to select the original local test file.
+
 From `softioc/`:
 
 ```bash

@@ -16,9 +16,11 @@ from numbers import Real
 from pathlib import Path
 from time import monotonic
 
-from .contract import APP_FIELDS, PREFIX, TREND_SUFFIXES, VERSION, input_suffix
+from .contract import APP_FIELDS, CHANGE_COMMAND, PREFIX, TREND_SUFFIXES, VERSION, input_suffix
 from .diagnostics import Diagnostics, Sample
-from .time_text import ObservationTimes, source_time_text
+from .schematic import VISUAL_FIELDS, visual_values
+from .time_text import ObservationTimes, date_text, pressure_text, source_time_text
+from .window_change import WindowRequests
 
 TREND_FIELDS = {
     "Status": ("Waiting for inputs", None),
@@ -113,11 +115,20 @@ def make_ioc(specs: tuple[InputSpec, ...], store=None):  # pragma: no cover - op
         PVGroup.__init__(self, prefix=literal_prefix, **kwargs)
 
     attributes["__init__"] = init
+    for key, (suffix, initial) in VISUAL_FIELDS.items():
+        attributes["visual_" + key] = pvproperty(
+            name=suffix, value=initial, read_only=True, precision=4
+        )
     if store is not None:
+        attributes["change_command"] = pvproperty(
+            name=CHANGE_COMMAND, value="", max_length=4096, read_only=False
+        )
         for key, (suffix, initial, units) in APP_FIELDS.items():
             options = (
                 {"units": units, "precision": 6} if units is not None else {"max_length": 1024}
             )
+            if key in ("ChangeReply", "ChangeReceipt"):
+                options = {"max_length": 8192}
             attributes["app_" + key] = pvproperty(
                 name=suffix,
                 value=initial,
@@ -136,6 +147,9 @@ def make_ioc(specs: tuple[InputSpec, ...], store=None):  # pragma: no cover - op
         )
         attributes[spec.name + "_text"] = pvproperty(
             name=input_suffix(spec.name, "Text"), value="", read_only=True, max_length=256
+        )
+        attributes[spec.name + "_display"] = pvproperty(
+            name=input_suffix(spec.name, "Display"), value="N/A", read_only=True, max_length=256
         )
         attributes[spec.name + "_connected"] = pvproperty(
             name=input_suffix(spec.name, "Connected"), value=0, read_only=True
@@ -194,6 +208,11 @@ def make_ioc(specs: tuple[InputSpec, ...], store=None):  # pragma: no cover - op
             self.diagnostics.update(spec.name, sample)
         await getattr(self, spec.name + "_value").write(_numeric(_first_value(response)))
         await getattr(self, spec.name + "_text").write(_text(_first_value(response)))
+        await getattr(self, spec.name + "_display").write(
+            pressure_text(sample.value)
+            if spec.name in ("pressure", "chamber_pressure")
+            else _text(_first_value(response))
+        )
         await getattr(self, spec.name + "_connected").write(1)
         await getattr(self, spec.name + "_severity").write(int(metadata.severity))
         await getattr(self, spec.name + "_status").write(int(metadata.status))
@@ -277,7 +296,7 @@ def make_ioc(specs: tuple[InputSpec, ...], store=None):  # pragma: no cover - op
         finally:
             await context.disconnect()
 
-    async def commit(self, *, final=False):
+    async def commit_unlocked(self, *, final=False):
         import json
 
         async with self.diagnostic_lock:
@@ -318,8 +337,77 @@ def make_ioc(specs: tuple[InputSpec, ...], store=None):  # pragma: no cover - op
         self.last_commit_utc = utc
         await self.app_CommitAge.write(max(0, time.time() - utc))
         await self.app_Queue.write(float(len(self.recorder.events)))
-        await self.app_Storage.write("Recording (SQLite WAL/FULL)")
+        await self.app_Storage.write("Recording (SQLite DELETE/FULL)")
         await self.app_Commit.write(float(seq))
+
+    async def identity_outputs(self):
+        await self.app_Window.write(store.window)
+        await self.app_Session.write(store.session)
+        await self.app_InstalledTime.write(store.installed_utc or float("nan"))
+        await self.app_InstalledText.write(date_text(store.installed_utc))
+        await self.app_ChangeReceipt.write(store.receipt)
+
+    async def commit(self, *, final=False):
+        async with self.commit_lock:
+            await commit_unlocked(self, final=final)
+
+    async def change(self, instance, value):
+        import json
+
+        from .beamtime import Recorder
+
+        message = value if isinstance(value, str) else bytes(value).decode("utf-8").rstrip("\x00")
+        async with self.commit_lock:
+            try:
+                # No staging fields: inspect/consume one complete identity-bound request.
+                reply, replacement = self.window_requests.handle(
+                    message, store, mono=monotonic(), utc=time.time()
+                )
+                if replacement:
+                    async with self.diagnostic_lock:
+                        self.recorder.advance(monotonic())
+                        fresh = Recorder(hold_seconds=self.recorder.procedure.hold_seconds)
+                        state = json.loads(json.dumps(self.recorder.snapshot()))
+                        operation = (*replacement, fresh.snapshot())
+                        work = asyncio.create_task(
+                            asyncio.to_thread(
+                                store.commit,
+                                self.recorder.events,
+                                self.recorder.cycles,
+                                state,
+                                final=True,
+                                replacement=operation,
+                            )
+                        )
+                        try:
+                            await asyncio.shield(work)
+                        except asyncio.CancelledError:
+                            await work
+                            # Commit may have succeeded during cancellation. Install
+                            # the fresh reducer before shutdown's final flush.
+                            self.recorder = fresh
+                            self.diagnostics = fresh.inputs
+                            raise
+                        self.recorder = fresh
+                        self.diagnostics = fresh.inputs
+                        await identity_outputs(self)
+                    await commit_unlocked(self)
+                    reply = {"status": "committed", **json.loads(store.receipt)}
+                await self.app_ChangeReply.write(json.dumps(reply))
+            except (ValueError, KeyError) as exc:
+                await self.app_ChangeReply.write(
+                    json.dumps({"status": "rejected", "error": str(exc)})
+                )
+            except Exception as exc:
+                self.window_requests.guard.cancel()
+                await self.app_ChangeReply.write(
+                    json.dumps({"status": "failed", "error": str(exc)})
+                )
+                await self.app_Storage.write("Window change failed; inspect database/log")
+        return ""
+
+    if store is not None:
+        attributes["change_command"] = attributes["change_command"].putter(change)
 
     async def writer(self):
         while True:
@@ -336,6 +424,7 @@ def make_ioc(specs: tuple[InputSpec, ...], store=None):  # pragma: no cover - op
         self.diagnostics = Diagnostics()
         self.observation_times = {spec.name: ObservationTimes() for spec in specs}
         self.diagnostic_lock = asyncio.Lock()
+        self.commit_lock = asyncio.Lock()
         if store is not None:
             from .beamtime import Recorder
 
@@ -347,8 +436,8 @@ def make_ioc(specs: tuple[InputSpec, ...], store=None):  # pragma: no cover - op
             self.flush_requested = asyncio.Event()
             self.storage_failed = False
             self.last_commit_utc = 0.0
-            await self.app_Window.write(store.window)
-            await self.app_Session.write(store.session)
+            self.window_requests = WindowRequests()
+            await identity_outputs(self)
         try:
             async with asyncio.TaskGroup() as tasks:
                 tasks.create_task(observe(self), name="commissioning-ca-observer")
@@ -357,7 +446,13 @@ def make_ioc(specs: tuple[InputSpec, ...], store=None):  # pragma: no cover - op
                 while True:
                     async with self.diagnostic_lock:
                         now = monotonic()
+                        for key, value in visual_values(self.diagnostics, now).items():
+                            await getattr(self, "visual_" + key).write(float(value))
                         if store is not None:
+                            arm = self.window_requests.guard.pending(now_s=now)
+                            await self.app_ChangeRemaining.write(
+                                max(0, arm.expires_at_s - now) if arm else 0.0
+                            )
                             await self.app_CommitAge.write(
                                 time.time() - self.last_commit_utc
                                 if self.last_commit_utc
@@ -424,23 +519,17 @@ def local_server_environment():
 
 
 def beamtime_main():  # pragma: no cover - optional CA entry point
-    from .beamtime import Store
+    import logging
 
-    parser = argparse.ArgumentParser(description="Local-only KaptonMon beamtime recorder")
-    parser.add_argument("--config", type=Path, required=True)
-    parser.add_argument("--database", type=Path, required=True)
-    parser.add_argument("--window-id", required=True)
-    parser.add_argument(
-        "--init", action="store_true", help="Create new database; fails if it exists"
-    )
-    parser.add_argument(
-        "--accept-config-change",
-        action="store_true",
-        help="Record a config epoch and preserve existing totals",
-    )
+    from .beamtime import Store
+    from .runtime import configure_logging, recorder_parser
+
+    parser = recorder_parser()
     args = parser.parse_args()
     specs = load_inputs(args.config)
     local_server_environment()
+    log_path = args.log_file or args.database.parent / "kapton-monitor.log"
+    # Do not create a missing shared mount path: deployment provisions permissions.
     store = Store(
         args.database,
         args.window_id,
@@ -448,13 +537,28 @@ def beamtime_main():  # pragma: no cover - optional CA entry point
         create=args.init,
         accept_config_change=args.accept_config_change,
     )
+    handler = None
     try:
+        handler = configure_logging(log_path)
+        logging.info(
+            "Starting KaptonMon database=%s window=%s session=%s journal=DELETE",
+            args.database,
+            store.window,
+            store.session,
+        )
         from caproto.server import run
 
         ioc = make_ioc(specs, store=store)(prefix=PREFIX)
         run(ioc.pvdb, interfaces=["127.0.0.1"])
+    except Exception:
+        logging.exception("KaptonMon stopped with an error")
+        raise
     finally:
         store.close()
+        if handler is not None:
+            logging.info("KaptonMon database closed")
+            logging.getLogger().removeHandler(handler)
+            handler.close()
 
 
 if __name__ == "__main__":  # pragma: no cover

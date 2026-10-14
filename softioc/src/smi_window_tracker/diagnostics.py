@@ -34,8 +34,8 @@ def describe(name: str, value: float) -> str:
             return "Under range (reported zero)"
         if value < 0.01:
             return "Pumped down (raw <0.01)"
-        if value > 700:
-            return "Atmosphere (>700 mbar)"
+        if value >= 600:
+            return "Vented range (>=600 mbar)"
         return "Above pump target"
     if name == "bpm3_sum_x":
         return "Unused: no beam inference"

@@ -9,6 +9,7 @@ from xml.etree import ElementTree as ET
 
 from .contract import (
     APP_FIELDS,
+    CHANGE_COMMAND,
     INPUT_FIELDS,
     INPUT_STEMS,
     PREFIX,
@@ -16,6 +17,7 @@ from .contract import (
     VERSION,
     input_suffix,
 )
+from .schematic import VISUAL_FIELDS
 
 
 def display(title, height):
@@ -107,6 +109,7 @@ def diagnostics():
     label(root, "hb_label", "Heartbeat", 500, 60, 120)
     readout(root, "heartbeat", "Heartbeat-I", 630, 60, 160, True)
     navigation(root, "window_overview.opi", "Main monitor", 1390, 60)
+    navigation(root, "beamline_schematic.opi", "Beamline schematic", 1110, 60)
     columns = [
         (20, 255, "Input"),
         (290, 220, "Raw"),
@@ -131,7 +134,12 @@ def diagnostics():
             readout(
                 root,
                 name + field,
-                input_suffix(name, field),
+                input_suffix(
+                    name,
+                    "Display"
+                    if field == "Text" and name in ("pressure", "chamber_pressure")
+                    else field,
+                ),
                 x,
                 y,
                 width,
@@ -163,6 +171,7 @@ def diagnostics():
 def overview():
     root = display("KaptonMon - beamtime recorder / window overview (local CA)", 1590)
     navigation(root, "commissioning_overview.opi", "Input diagnostics", 1390, 60)
+    navigation(root, "window_overview.opi", "Visual monitor", 1110, 60)
     rows = [
         ("Window", "Physical window / beamtime ID"),
         ("Storage", "Storage health"),
@@ -213,7 +222,7 @@ def overview():
     for index, name in enumerate(("pressure", "chamber_pressure", "valve")):
         x = 20 + index * 540
         label(root, "live_label_" + name, INPUT_STEMS[name], x, 725, 500)
-        readout(root, "live_" + name, input_suffix(name, "Text"), x, 755, 200)
+        readout(root, "live_" + name, input_suffix(name, "Display"), x, 755, 200)
         readout(root, "state_" + name, input_suffix(name, "State"), x + 210, 755, 320)
     watch(root, 815)
     label(
@@ -237,7 +246,7 @@ def overview():
     for index, (key, title) in enumerate(
         (
             ("Retention", "History policy"),
-            ("DatabaseMiB", "Database + WAL size (MiB)"),
+            ("DatabaseMiB", "Database + journal size (MiB)"),
             ("HistoryReceived", "Received observations (this session)"),
             ("HistoryRetained", "Retained events (this session)"),
             ("HistorySkipped", "Skipped repeats/unused (this session)"),
@@ -288,22 +297,31 @@ def overview():
 
 
 def build(directory):
+    from .change_display import change_display
+    from .visual_display import schematic_display
+
     directory = Path(directory)
     for filename, root in (
         ("commissioning_overview.opi", diagnostics()),
-        ("window_overview.opi", overview()),
+        ("window_overview.opi", schematic_display()),
+        ("window_details.opi", overview()),
+        ("beamline_schematic.opi", schematic_display()),
+        ("change_window.opi", change_display()),
     ):
         ET.indent(root, space="  ")
         ET.ElementTree(root).write(directory / filename, encoding="UTF-8", xml_declaration=True)
     suffixes = ["Version:Contract-I", "Heartbeat-I", *TREND_SUFFIXES.values()]
     suffixes += [input_suffix(name, field) for name in INPUT_STEMS for field in INPUT_FIELDS]
     suffixes += [value[0] for value in APP_FIELDS.values()]
+    suffixes += [value[0] for value in VISUAL_FIELDS.values()]
+    suffixes += [CHANGE_COMMAND]
     (directory / "pv_manifest.json").write_text(
         json.dumps(
             {
                 "contract": VERSION,
                 "prefix": PREFIX,
-                "read_only": True,
+                "read_only": False,
+                "writable_suffixes": [CHANGE_COMMAND],
                 "suffixes": suffixes,
             },
             indent=2,

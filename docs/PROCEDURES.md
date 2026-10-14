@@ -12,6 +12,7 @@ reported separately and does not by itself invalidate this status.
   opening is a procedural alarm; this is distinct from the original pump-cycle
   qualification threshold of <0.01 mbar for 5 seconds.
 - WAXS fully vented: **strictly above 700 mbar**, no additional dwell requested.
+  Once confirmed, vented status latches until **below 600 mbar** to tolerate gauge drift.
 - Vacuum-first minimum isolated observation: **300 seconds**, configurable as
   `[procedure] hold_seconds` in `config/commissioning.toml`.
 - Rate of rise remains informational. There is no expected-rate limit or learned
@@ -36,7 +37,7 @@ Start the hold while GV6W and GV7 remain closed, WAXS >700 and TCG:9 <0.009.
 Continue observing after 300 s; display **Minimum hold met; continue observing**,
 not “safe” or “permitted.” Opening GV7 before this continuous hold completes is
 a procedural warning. Opening ends the isolated rate watch; re-isolation requires
-a new hold. Source loss/invalid data, under-range zero, upstream <=700, or downstream
+a new hold. Source loss/invalid data, under-range zero, upstream <600, or downstream
 >=0.009 resets the current hold rather than granting unobserved time.
 
 ### Manual-pump

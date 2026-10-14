@@ -79,7 +79,7 @@ def test_numeric_text_reaches_pressure_state_and_preserves_alarm_validity():
     diagnostics = Diagnostics()
     value = _numeric("8.1E+02")
     diagnostics.update("chamber_pressure", Sample(value, 0))
-    assert diagnostics.state("chamber_pressure", 0) == "Atmosphere (>700 mbar)"
+    assert diagnostics.state("chamber_pressure", 0) == "Vented range (>=600 mbar)"
     diagnostics.update("chamber_pressure", Sample(value, 1, severity=3))
     assert diagnostics.state("chamber_pressure", 1) == "Invalid source alarm"
     diagnostics.update("chamber_pressure", Sample(_numeric("0E0"), 2))

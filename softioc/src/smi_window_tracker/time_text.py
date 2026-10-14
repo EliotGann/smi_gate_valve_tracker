@@ -4,6 +4,28 @@ from datetime import UTC, datetime
 from math import isfinite
 
 
+def duration_text(seconds):
+    if seconds is None or not isfinite(seconds) or seconds < 0:
+        return "N/A"
+    total = int(seconds + 0.5)
+    days, remainder = divmod(total, 86400)
+    hours, remainder = divmod(remainder, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return f"{days} days {hours}:{minutes:02d}:{seconds:02d}"
+
+
+def pressure_text(value):
+    if value is None or not isfinite(value) or value < 0:
+        return "N/A"
+    return format(value, ".3g")
+
+
+def date_text(timestamp):
+    if timestamp is None or not isfinite(timestamp) or timestamp <= 0:
+        return "Unknown installation date"
+    return datetime.fromtimestamp(timestamp, UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
+
+
 def age_text(age: float) -> str:
     """Human duration with a five-second 'just now' deadband."""
     if not isfinite(age):

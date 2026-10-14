@@ -21,6 +21,9 @@ class Thresholds:
     start_timeout_s: float = 120.0
     pumped_dwell_s: float = 5.0
     pumped_exit_mbar: float = 0.02
+    # None preserves the historical offline v2 definition. The live v3 reducer
+    # selects 600 explicitly, while old histories keep their timing provenance.
+    entry_below_mbar: float | None = None
 
     def __post_init__(self):
         pressures = (
@@ -35,6 +38,10 @@ class Thresholds:
             raise ValueError("Require 0 < pumped < pumped exit < start confirm < atmosphere")
         if not all(isfinite(t) and t > 0 for t in (self.start_timeout_s, self.pumped_dwell_s)):
             raise ValueError("Qualification times must be finite and positive")
+        if self.entry_below_mbar is not None and not (
+            self.start_confirm_mbar < self.entry_below_mbar < self.atmosphere_mbar
+        ):
+            raise ValueError("Entry must lie between confirmation and atmosphere thresholds")
 
 
 @dataclass(frozen=True)
@@ -183,6 +190,11 @@ class PumpTracker:
             self._armed = True
             return
         elif self._armed and self._start is None:
+            if (
+                self.thresholds.entry_below_mbar is not None
+                and pressure_mbar >= self.thresholds.entry_below_mbar
+            ):
+                return
             self._start = time_s
 
         if self._start is not None:

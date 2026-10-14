@@ -108,6 +108,44 @@ displaying a derived remaining-life indicator (not planned initially).
 
 ## Implementation boundary
 
+### Implemented local workflow
+
+The visual default `window_overview.opi` now opens `change_window.opi` for this
+workflow. Propose/Arm uses local dialogs (new ID, operator, removal reason,
+installation UTC and notes), submits one JSON request, and displays the server's
+immutable proposal. Confirm prompts for the old ID and submits the matching
+request ID/token/service session. Tokens expire after 60 seconds and any confirm
+attempt consumes them. The UI never prefills the typed-ID field. Expired tokens
+cannot succeed even if the proposal text remains visible; check seconds remaining.
+
+Only `Window:Change-Cmd` is writable, on the local output IOC. It does not actuate
+hardware. All device inputs and other published PVs remain read-only. Only the
+durable `Window:ChangeReceipt-I` identifies committed success. A closed/reopened
+screen owns no pending request; a session change invalidates confirmation.
+
+SQLite migration adds `installations`, `session_windows` and `window_changes`.
+Replacement is transactional with old final increments/history, retirement,
+new installation, zeroed checkpoint, new recording session and receipt. Session
+mapping keeps events attributable to each physical window. Retired IDs cannot be
+reused. Restart pending arms are discarded, and the active window is restored.
+No retrospective integration before the switch is performed even if an earlier
+installation date is entered as metadata.
+
+The legacy/current window's installation date was never captured and is shown as
+unknown (numeric NaN), not fabricated from recorder startup. Replacement records
+the operator-supplied physical installation UTC. Material parameters/dose are
+still unavailable; this screen does not claim calibrated exposure or life prediction.
+
+For restarts after replacing a window, **omit `--window-id`** to use the stored
+active identity (or explicitly use its new ID). `--window-id` remains required
+with `--init`; a stale explicit identity is rejected. Never use `--init` to replace
+a physical window. Retired-history browsing is still a future screen; SQLite
+retains it. BOY Jython dialog execution needs operator acceptance on the installed
+runtime; the atomic command transport and SQLite rollback/restart are tested locally.
+
+The paragraph below describes the original offline foundation; the guard is now
+also used by `WindowRequests` and the live transaction path.
+
 The offline `WindowChangeGuard` tests an immutable proposal, one pending arm,
 monotonic expiry, identity/revision checks and one-use consumption. It returns a
 validated proposal to the caller. It does **not** mutate statistics or implement

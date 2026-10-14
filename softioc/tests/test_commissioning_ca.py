@@ -18,7 +18,7 @@ def test_exact_facility_prefix_matches_manifest(tmp_path, recording):
 
     from smi_window_tracker.beamtime import Store
     from smi_window_tracker.commissioning import load_inputs, make_ioc
-    from smi_window_tracker.contract import APP_FIELDS, PREFIX
+    from smi_window_tracker.contract import APP_FIELDS, CHANGE_COMMAND, PREFIX
 
     root = Path(__file__).resolve().parents[2]
     specs = load_inputs(root / "softioc/config/commissioning.toml")
@@ -29,10 +29,14 @@ def test_exact_facility_prefix_matches_manifest(tmp_path, recording):
         expected = set(manifest["suffixes"])
         if not recording:
             expected -= {definition[0] for definition in APP_FIELDS.values()}
+            expected.discard(CHANGE_COMMAND)
         assert ioc.prefix == PREFIX
         assert set(ioc.pvdb) == {PREFIX + suffix for suffix in expected}
         assert all(pv.pvname == name for name, pv in ioc.pvdb.items())
-        assert all(pv.pvspec.read_only for pv in ioc.pvdb.values())
+        assert all(
+            pv.pvspec.read_only == (name != PREFIX + CHANGE_COMMAND)
+            for name, pv in ioc.pvdb.items()
+        )
     finally:
         if store is not None:
             store.close()
@@ -83,7 +87,8 @@ obs = make_ioc((InputSpec("pressure", "LOCAL:SOURCE:pressure", "synthetic"),
                 InputSpec("downstream_valve", "LOCAL:SOURCE:valve", "synthetic"),
                 InputSpec("chamber_pressure", "LOCAL:SOURCE:chamber", "synthetic")), store=store)(
     prefix=PREFIX)
-assert all(pv.pvspec.read_only for pv in obs.pvdb.values())
+assert all(pv.pvspec.read_only for name,pv in obs.pvdb.items()
+           if not name.endswith("Window:Change-Cmd"))
 try:
     run({**src.pvdb, **obs.pvdb}, interfaces=["127.0.0.1"])
 finally:
@@ -125,7 +130,7 @@ def text(name):
 assert text("Input:valve:State") == "Closed (assumed)"
 assert read('LOCAL:OBS:Input:chamber_pressure:Value', timeout=2).data[0] == 810.0
 assert text('Input:chamber_pressure:Text') == '8.1E+02'
-assert text('Input:chamber_pressure:State') == 'Atmosphere (>700 mbar)'
+assert text('Input:chamber_pressure:State') == 'Vented range (>=600 mbar)'
 source_time_label = text('Input:chamber_pressure:TimeText')
 assert text('Input:valve:TimeText').startswith('Suspect IOC time | 1990-')
 assert text('Input:valve:ReadAge') == 'just now'
@@ -133,7 +138,7 @@ assert text('Input:valve:ChangeAge').startswith('No change seen; baseline')
 initial_read_time = read('LOCAL:OBS:Input:valve:ReadTime', timeout=2).data[0]
 assert ' | ' in source_time_label and source_time_label.endswith(' UTC')
 assert read('LOCAL:OBS:Storage:Seq-I', timeout=2).data[0] > 0
-assert text('Storage:State-Sts') == 'Recording (SQLite WAL/FULL)'
+assert text('Storage:State-Sts') == 'Recording (SQLite DELETE/FULL)'
 assert text('Procedure:Path-Sts') == 'unclassified'
 assert 'Closure not observed' in text('Procedure:Alarm-Sts')
 assert read('LOCAL:OBS:Procedure:Alarm-Sts', data_type='time', timeout=2).metadata.severity == 2
@@ -149,12 +154,29 @@ assert read('LOCAL:OBS:Input:valve:ReadTime', timeout=2).data[0] > initial_read_
 assert read('LOCAL:OBS:Input:valve:ChangeTime', timeout=2).data[0] == 0
 assert text('Input:valve:ReadAge') == 'just now'
 assert read('LOCAL:OBS:Input:pressure:ChangeTime', timeout=2).data[0] > 0
+assert read('LOCAL:OBS:View:Sample-Sts', timeout=2).data[0] == 1
+assert read('LOCAL:OBS:View:Beam-Sts', timeout=2).data[0] == -1
 assert text('Storage:Policy-Sts') == 'changes-v1'
 assert read('LOCAL:OBS:Storage:Skipped-I', timeout=2).data[0] > 0
 assert read('LOCAL:OBS:Storage:Received-I', timeout=2).data[0] > read(
     'LOCAL:OBS:Storage:Retained-I', timeout=2).data[0]
 assert read('LOCAL:OBS:Storage:SnapshotRows-I', timeout=2).data[0] < read(
     'LOCAL:OBS:Storage:Seq-I', timeout=2).data[0]
+from caproto.sync.client import write
+import json
+session = text('Session:ID-I')
+proposal = dict(op='arm', request_id='ca-test', session=session,
+                current_id='window-test', new_id='window-next', operator='test',
+                reason='preventive', installed_utc='2026-01-01T00:00:00Z')
+write(PREFIX + 'Window:Change-Cmd', json.dumps(proposal), timeout=4, notify=True)
+reply = json.loads(text('Window:ChangeReply-I'))
+assert reply['status'] == 'armed', reply
+write(PREFIX + 'Window:Change-Cmd', json.dumps(dict(op='confirm',request_id='ca-test',
+      session=session, token=reply['token'], typed_current_id='window-test')),timeout=4,notify=True)
+reply = json.loads(text('Window:ChangeReply-I'))
+assert reply['status'] == 'committed', reply
+assert text('Window:ID-I') == 'window-next'
+assert read('LOCAL:OBS:Window:InstalledTime-I', timeout=2).data[0] == 1767225600
 """
         proc = subprocess.Popen(
             [sys.executable, "-c", server], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE

@@ -103,7 +103,7 @@ def test_gap_revoking_hold_and_upstream_revent_and_reisolate():
     step(p, d, 10)
     assert p.hold_elapsed == 0
     assert p.warnings()
-    step(p, d, 11, up=699)
+    step(p, d, 11, up=599)
     assert p.hold_start is None
     step(p, d, 12)
     step(p, d, 14, gv7=1)

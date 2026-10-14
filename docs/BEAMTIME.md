@@ -1,5 +1,23 @@
 # Local KaptonMon beamtime app
 
+Default storage is now `/nsls2/data/smi/shared/config/kaptondb/history.sqlite`;
+explicit `--database` still overrides it. Application logs rotate beside that
+database. The requested volume is NFS on this workstation, so current versions
+use SQLite **DELETE/FULL**, replacing the historical WAL/FULL mode described
+below. See [STORAGE.md](STORAGE.md) for exact files, initialization and migration.
+
+The default `window_overview.opi` is now the visual monitor; the former statistics
+screen is `window_details.opi`. Window replacement is available via the dedicated
+confirmation screen described in [WINDOW_LIFECYCLE.md](WINDOW_LIFECYCLE.md).
+Resume the database with `--window-id` omitted to follow its current installation.
+The current migration leaves unknown legacy installation dates unknown.
+
+The live pump-start definition is now **v3: <600 mbar entry**, retaining >700
+atmosphere arming, <500 confirmation within 120 s, and <0.01 for 5 s completion.
+Counters/timers and old cycle records survive, but new early/recent baselines
+start afresh when upgrading from the v2 timing definition. Pressure displays
+remain vented down to 600; the procedural vent latch sets >700 and clears <600.
+
 See [PROCEDURES.md](PROCEDURES.md) for the added GV7 readback, separate operating
 paths, 0.009 mbar pressure warning, configurable five-minute hold, and the
 `--accept-config-change` restart option needed to add that input to existing history.
