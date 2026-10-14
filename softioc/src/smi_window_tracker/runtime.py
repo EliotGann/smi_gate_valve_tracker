@@ -48,39 +48,40 @@ def add_network_arguments(parser, *, default_mode="softioc"):
         action="append",
         default=[],
         metavar="IP",
-        help="Soft IOC bind IPv4 address; repeat for multiple interfaces",
+        help="Override EPICS_CAS_INTF_ADDR_LIST; repeat for multiple interfaces",
     )
     parser.add_argument(
         "--beacon-address",
         action="append",
         default=[],
         metavar="IP[:PORT]",
-        help="Soft IOC beacon destination(s): subnet broadcast or client/repeater IP",
+        help="Override EPICS_CAS_BEACON_ADDR_LIST and disable automatic beacons",
     )
     parser.add_argument(
         "--server-port",
         type=int,
-        default=5064,
-        help="Output CA search/TCP port (default: 5064); input discovery unchanged",
+        default=None,
+        help="Override EPICS_CAS_SERVER_PORT (caproto default: 5064); inputs unchanged",
     )
 
 
 def server_environment(args):
     """Configure only output CA settings, never EPICS_CA_* source discovery.
 
-    Require explicit network destinations instead of relying on limited broadcast
-    255.255.255.255, which was blocked during commissioning. Local mode always
-    overrides inherited server interface/beacon settings.
+    Softioc mode inherits site EPICS settings and caproto defaults unless a CLI
+    override is supplied. Returning None lets caproto resolve its normal interface
+    list from EPICS_CAS_INTF_ADDR_LIST. Local mode always forces loopback.
     """
-    if not 1 <= args.server_port <= 65535:
+    if args.server_port is not None and not 1 <= args.server_port <= 65535:
         raise ValueError("--server-port must be between 1 and 65535")
     if args.mode == "local":
         if args.interface or args.beacon_address:
             raise ValueError("--interface/--beacon-address apply only to --mode softioc")
         interfaces, beacons = ["127.0.0.1"], ["127.0.0.1"]
+        os.environ["EPICS_CAS_AUTO_BEACON_ADDR_LIST"] = "NO"
+        os.environ["EPICS_CAS_BEACON_ADDR_LIST"] = " ".join(beacons)
+        os.environ["EPICS_CAS_INTF_ADDR_LIST"] = " ".join(interfaces)
     else:
-        if not args.interface or not args.beacon_address:
-            raise ValueError("softioc mode requires --interface IP and --beacon-address IP[:PORT]")
         interfaces, beacons = args.interface, args.beacon_address
         for address in interfaces:
             ip = ipaddress.IPv4Address(address)
@@ -91,11 +92,31 @@ def server_environment(args):
             ipaddress.IPv4Address(host)
             if ":" in address and (not port.isdigit() or not 1 <= int(port) <= 65535):
                 raise ValueError("Beacon port must be between 1 and 65535")
-    os.environ["EPICS_CAS_AUTO_BEACON_ADDR_LIST"] = "NO"
-    os.environ["EPICS_CAS_BEACON_ADDR_LIST"] = " ".join(beacons)
-    os.environ["EPICS_CAS_INTF_ADDR_LIST"] = " ".join(interfaces)
-    os.environ["EPICS_CAS_SERVER_PORT"] = str(args.server_port)
-    return interfaces
+        if interfaces:
+            os.environ["EPICS_CAS_INTF_ADDR_LIST"] = " ".join(interfaces)
+        if beacons:
+            os.environ["EPICS_CAS_AUTO_BEACON_ADDR_LIST"] = "NO"
+            os.environ["EPICS_CAS_BEACON_ADDR_LIST"] = " ".join(beacons)
+    if args.server_port is not None:
+        os.environ["EPICS_CAS_SERVER_PORT"] = str(args.server_port)
+    return interfaces or None
+
+
+def log_epics_network_config(run_options: dict):
+    """Report the inherited/overridden environment and actual server bind list."""
+    log = logging.getLogger(__name__)
+    for name in (
+        "EPICS_CA_AUTO_ADDR_LIST",
+        "EPICS_CA_ADDR_LIST",
+        "EPICS_CA_SERVER_PORT",
+        "EPICS_CA_REPEATER_PORT",
+        "EPICS_CAS_AUTO_BEACON_ADDR_LIST",
+        "EPICS_CAS_BEACON_ADDR_LIST",
+        "EPICS_CAS_INTF_ADDR_LIST",
+        "EPICS_CAS_SERVER_PORT",
+    ):
+        log.warning("%s=%s", name, os.environ.get(name, "<unset; caproto default>"))
+    log.warning("caproto server interfaces=%s", run_options.get("interfaces"))
 
 
 def configure_logging(path):

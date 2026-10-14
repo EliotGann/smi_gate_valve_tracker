@@ -42,7 +42,7 @@ def test_exact_facility_prefix_matches_manifest(tmp_path, recording):
             store.close()
 
 
-@pytest.mark.parametrize("mode", ["local", "softioc"])
+@pytest.mark.parametrize("mode", ["local", "softioc", "environment"])
 def test_observer_receives_source_and_heartbeat_survives_gc(tmp_path, mode):
     # Bind a local beacon sink so unicast UDP does not receive port-unreachable.
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as beacon:
@@ -57,6 +57,7 @@ def test_observer_receives_source_and_heartbeat_survives_gc(tmp_path, mode):
             "EPICS_CA_ADDR_LIST": f"127.0.0.1:{port}",
             "EPICS_CA_SERVER_PORT": str(port),
             "EPICS_CAS_SERVER_PORT": str(port),
+            "EPICS_CAS_INTF_ADDR_LIST": "127.0.0.1",
             "EPICS_CAS_AUTO_BEACON_ADDR_LIST": "NO",
             "EPICS_CAS_BEACON_ADDR_LIST": f"127.0.0.1:{beacon_port}",
             "TEST_DATABASE": str(tmp_path / "beamtime.sqlite"),
@@ -74,8 +75,10 @@ from smi_window_tracker.runtime import recorder_parser, server_environment
 from smi_window_tracker.beamtime import Store
 from smi_window_tracker.contract import PREFIX
 store = Store(Path(os.environ['TEST_DATABASE']), 'window-test', '# test-config', create=True)
-args = ['--config','unused','--mode',os.environ['TEST_MODE'],
-        '--server-port',os.environ['EPICS_CAS_SERVER_PORT']]
+args = ['--config','unused']
+if os.environ['TEST_MODE'] != 'environment':
+    args += ['--mode',os.environ['TEST_MODE'],
+             '--server-port',os.environ['EPICS_CAS_SERVER_PORT']]
 if os.environ['TEST_MODE'] == 'softioc':
     args += ['--interface','127.0.0.1','--beacon-address',
              '127.0.0.1:' + os.environ['TEST_BEACON']]

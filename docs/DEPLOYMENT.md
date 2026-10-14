@@ -2,6 +2,21 @@
 
 ## 1. Install and choose mode
 
+For the standard site layout, place the repository beneath a softioc instance
+directory containing the server-managed `config` and `st.cmd`. The root
+[README installation section](../README.md#standard-ioc-server-installation-manage-iocs)
+provides the layout and POSIX `st.cmd` wrapper. Configure the site manager to run
+`sh st.cmd` in that outer directory; the wrapper invokes the repository's bash
+launcher. manage-iocs owns start/stop/restart/status and console management.
+Its configuration syntax and command arguments follow the existing server/site
+conventions, rather than an application-specific configuration format.
+
+Keep site-specific network values and manager settings outside the Git checkout.
+Ensure `pixi` is in the service account's noninteractive PATH and storage is mounted
+before startup. The process stays in the foreground; normal `st.cmd` must never
+contain `--init` or a fixed physical-window ID. Configure supervisor stop behavior
+to reach the application/process group and allow its final database flush.
+
 Deploy the repository at a stable absolute path on the IOC server. Install once,
 before handing the launcher to the site's IOC manager:
 
@@ -16,6 +31,24 @@ finish in-flight SQLite work, flush accepted events and close the recording sess
 
 ### Network soft IOC (default mode)
 
+Preferred with the site's environment already set by the IOC launcher:
+
+```bash
+bash /path/to/softioc/start-monitor.sh --mode softioc
+```
+
+Network mode inherits `EPICS_CAS_INTF_ADDR_LIST`, `EPICS_CAS_BEACON_ADDR_LIST`,
+`EPICS_CAS_AUTO_BEACON_ADDR_LIST` and `EPICS_CAS_SERVER_PORT`. Input-side
+`EPICS_CA_*` variables are always preserved. No facility IP addresses are stored
+in Pixi configuration or application defaults. The startup log prints these
+variables and the resolved caproto server interfaces.
+
+Precedence: explicit CLI overrides → inherited EPICS environment → caproto defaults.
+With no interface setting caproto normally binds all interfaces; automatic beacon
+discovery follows caproto's default unless the environment says otherwise. Set
+the environment explicitly on the IOC host to avoid unintended network scope or
+the blocked limited broadcast encountered on the commissioning workstation.
+
 Replace the address placeholders with actual site values:
 
 ```bash
@@ -28,9 +61,9 @@ The interface must be a specific local IPv4 address. Repeat `--interface` to
 serve multiple interfaces, including 127.0.0.1 if local clients need it. Repeat
 `--beacon-address` for subnet broadcasts or individual client/repeater addresses;
 an optional `:PORT` suffix overrides the beacon destination port (normally 5065).
-Automatic/global broadcast is disabled to avoid the blocked 255.255.255.255
-destination encountered during commissioning. Missing explicit network settings
-cause a startup error before database/log files are touched.
+An explicit `--beacon-address` disables automatic beacon destinations; otherwise
+the inherited auto-beacon setting is retained. These flags are optional overrides
+when the site's environment is already configured.
 
 The full application's default mode is `softioc`. To avoid accidentally exposing
 a test instance, always specify `--mode local` for a workstation test.
@@ -51,9 +84,7 @@ it accepts the same mode/interface/beacon/port arguments but has no recorder.
 ### Equivalent Pixi commands (from softioc/)
 
 ```bash
-pixi run -e caproto smi-kapton-monitor --mode softioc \
-  --config config/commissioning.toml \
-  --interface IOC_SERVER_IP --beacon-address SUBNET_BROADCAST_IP
+pixi run -e caproto smi-kapton-monitor --config config/commissioning.toml
 
 pixi run -e caproto smi-kapton-monitor --mode local \
   --config config/commissioning.toml \
@@ -62,8 +93,9 @@ pixi run -e caproto smi-kapton-monitor --mode local \
 
 ## 2. CA discovery and coexistence
 
-`--server-port` defaults to 5064 and sets only `EPICS_CAS_SERVER_PORT`. Server
-interfaces are passed explicitly to caproto. Input reads retain the IOC account's
+`--server-port` overrides only `EPICS_CAS_SERVER_PORT`; without it the environment
+is retained (caproto default 5064). Resolved server interfaces are logged and
+passed to caproto. Input reads retain the IOC account's
 existing **`EPICS_CA_ADDR_LIST` / `EPICS_CA_AUTO_ADDR_LIST` / client port settings**.
 Do not point the application's input discovery only at itself.
 

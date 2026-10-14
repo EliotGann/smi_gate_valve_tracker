@@ -1,16 +1,23 @@
 # KaptonMon soft IOC
 
+For installation beneath a site softioc directory with outer `st.cmd`/`config`
+and manage-iocs supervision, see the
+[standard installation instructions](../README.md#standard-ioc-server-installation-manage-iocs).
+The manager runs `sh st.cmd`; that wrapper uses bash to invoke `start-monitor.sh`.
+Site configuration/environment remains outside the checkout.
+
 Install from this directory: `pixi install --locked -e caproto`.
 
 ## Network IOC server
 
 ```bash
-bash start-monitor.sh --mode softioc \
-  --interface IOC_SERVER_IP --beacon-address SUBNET_BROADCAST_IP
+bash start-monitor.sh
 ```
 
-`softioc` is the default mode; interface and beacon addresses are required.
-Repeat either flag as needed. `--server-port` defaults to 5064. These options
+`softioc` is the default mode; flags override the site's inherited EPICS settings.
+With the launch environment configured, just `bash start-monitor.sh --mode softioc`
+is sufficient. Repeat either address flag as needed. `--server-port` overrides
+`EPICS_CAS_SERVER_PORT` (caproto default 5064). These options
 configure only the output server, preserving beamline input `EPICS_CA_*` discovery.
 
 ## Local test

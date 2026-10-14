@@ -12,11 +12,10 @@ Install the locked environment once:
 pixi install --locked --manifest-path softioc/pixi.toml -e caproto
 ```
 
-**IOC server**, using its actual interface and site subnet broadcast/repeater address:
+**IOC server**, inheriting the existing site EPICS environment:
 
 ```bash
-bash softioc/start-monitor.sh --mode softioc \
-  --interface IOC_SERVER_IP --beacon-address SUBNET_BROADCAST_IP
+bash softioc/start-monitor.sh
 ```
 
 **Local workstation**, keeping the existing beamtime history:
@@ -26,7 +25,8 @@ bash softioc/start-monitor.sh --mode local \
   --database "$HOME/kapton-monitor-beamtime/history.sqlite"
 ```
 
-`softioc` is the default mode and requires explicit network addresses. `local`
+`softioc` is the default mode and inherits standard EPICS network environment
+variables; interface/beacon CLI flags are optional overrides. `local`
 binds output TCP/UDP and beacons to loopback. Neither changes input CA discovery.
 Default database: `/nsls2/data/smi/shared/config/kaptondb/history.sqlite`.
 Normal startup requires an existing database. Only first-ever creation uses
@@ -35,6 +35,58 @@ current beamtime history, migrate it rather than initialize another empty file.
 
 See **[deployment runbook](docs/DEPLOYMENT.md)** for discovery/firewall details,
 storage migration, initial creation, logging and supervised startup.
+
+## Standard IOC-server installation (manage-iocs)
+
+Install this repository as a subdirectory of the site's softioc instance
+directory. The outer `st.cmd` and `config` belong to the server deployment:
+
+```text
+<site-softioc-directory>/kapton-monitor/
+├── config                       # Site-generated manage-iocs configuration
+├── st.cmd                       # Shell entry point run by the IOC manager
+└── smi_gate_valve_tracker/       # This Git checkout
+    ├── softioc/
+    │   ├── start-monitor.sh
+    │   ├── pixi.toml
+    │   └── config/commissioning.toml
+    └── frontend/opi/
+```
+
+1. Clone the repository into `smi_gate_valve_tracker/` under the instance directory.
+2. As the IOC service account, install the environment once:
+   `pixi install --locked --manifest-path smi_gate_valve_tracker/softioc/pixi.toml -e caproto`.
+3. Provision `/nsls2/data/smi/shared/config/kaptondb` and migrate the existing
+   history with the old recorder stopped, as described in the deployment runbook.
+   Use `--init --window-id ID` only for an intentionally new database.
+4. Place this POSIX-shell wrapper in the **outer** `st.cmd`:
+
+   ```sh
+   #!/bin/sh
+   set -eu
+   IOC_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+   exec bash "$IOC_DIR/smi_gate_valve_tracker/softioc/start-monitor.sh" "$@"
+   ```
+
+5. Have the server's normal IOC configuration launch **`sh st.cmd`** in the
+   instance directory, under the intended IOC account with `pixi` available in
+   `PATH`. The outer `config` uses the site's existing format and supplies the
+   EPICS environment; it is distinct from the application's input-PV TOML.
+6. Register/control this instance using the site's usual **manage-iocs** workflow
+   for start, stop, restart, status and console access. Keep the process in the
+   foreground; do not add `&`, `nohup`, or database initialization to normal startup.
+
+The wrapper deliberately calls **bash** for `start-monitor.sh`, even when the
+server invokes `st.cmd` with `sh`. The launcher inherits the site's EPICS network
+variables, uses the shared database/log defaults, and resumes the active installed
+window. SIGTERM permits a final flush; configure the manager to signal/wait for
+the application process or its process group, allowing for storage latency.
+
+Host IPs, manager configuration, account settings and server-specific paths stay
+in the **outer deployment directory/environment**, outside this Git checkout.
+No edits to Pixi or tracked startup scripts are needed per server. After an update,
+install the locked environment as needed and restart through manage-iocs; preserve
+the database. Do not leave a hard-coded window ID in `st.cmd` after initialization.
 
 ## Operator displays
 

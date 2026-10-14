@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Network IOC: bash start-monitor.sh --mode softioc --interface HOST_IP \
-#                 --beacon-address SUBNET_BROADCAST
+# Network IOC: bash start-monitor.sh (inherits the site's EPICS_CA_* / EPICS_CAS_*)
 # Local test: bash start-monitor.sh --mode local --database /local/path/history.sqlite
 # Storage defaults to /nsls2/data/smi/shared/config/kaptondb/history.sqlite.
 # Provision the directory first. Use --init --window-id ID only on first creation.

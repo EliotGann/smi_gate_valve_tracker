@@ -8,6 +8,7 @@ from smi_window_tracker.beamtime import Store
 from smi_window_tracker.runtime import (
     DEFAULT_DATABASE,
     configure_logging,
+    log_epics_network_config,
     recorder_parser,
     server_environment,
 )
@@ -91,8 +92,6 @@ def test_output_network_does_not_change_input_discovery(monkeypatch, mode):
 @pytest.mark.parametrize(
     "flags",
     [
-        [],
-        ["--interface", "192.0.2.20"],
         ["--mode", "local", "--interface", "192.0.2.20"],
         ["--mode", "local", "--server-port", "0"],
         ["--interface", "0.0.0.0", "--beacon-address", "192.0.2.255"],
@@ -103,3 +102,42 @@ def test_output_network_does_not_change_input_discovery(monkeypatch, mode):
 def test_invalid_network_arguments(flags):
     with pytest.raises(ValueError):
         server_environment(recorder_parser().parse_args(["--config", "test.toml", *flags]))
+
+
+def test_softioc_inherits_site_environment_without_rewriting(monkeypatch):
+    settings = {
+        "EPICS_CA_ADDR_LIST": "site-gateway",
+        "EPICS_CAS_INTF_ADDR_LIST": "192.0.2.20 127.0.0.1",
+        "EPICS_CAS_BEACON_ADDR_LIST": "192.0.2.255",
+        "EPICS_CAS_AUTO_BEACON_ADDR_LIST": "YES",
+        "EPICS_CAS_SERVER_PORT": "15064",
+    }
+    for key, value in settings.items():
+        monkeypatch.setenv(key, value)
+    args = recorder_parser().parse_args(["--config", "test.toml"])
+    assert server_environment(args) is None
+    assert {key: os.environ[key] for key in settings} == settings
+
+
+def test_cli_only_overrides_requested_settings(monkeypatch):
+    monkeypatch.setenv("EPICS_CAS_SERVER_PORT", "15064")
+    monkeypatch.setenv("EPICS_CAS_AUTO_BEACON_ADDR_LIST", "YES")
+    monkeypatch.setenv("EPICS_CAS_BEACON_ADDR_LIST", "192.0.2.255")
+    args = recorder_parser().parse_args(["--config", "test.toml", "--interface", "192.0.2.20"])
+    assert server_environment(args) == ["192.0.2.20"]
+    assert os.environ["EPICS_CAS_AUTO_BEACON_ADDR_LIST"] == "YES"
+    assert os.environ["EPICS_CAS_BEACON_ADDR_LIST"] == "192.0.2.255"
+    assert os.environ["EPICS_CAS_SERVER_PORT"] == "15064"
+    args = recorder_parser().parse_args(["--config", "test.toml", "--beacon-address", "192.0.2.30"])
+    assert server_environment(args) is None
+    assert os.environ["EPICS_CAS_AUTO_BEACON_ADDR_LIST"] == "NO"
+    assert os.environ["EPICS_CAS_BEACON_ADDR_LIST"] == "192.0.2.30"
+
+
+def test_network_logging_includes_input_settings_and_resolved_interfaces(monkeypatch, caplog):
+    monkeypatch.setenv("EPICS_CA_ADDR_LIST", "192.0.2.10")
+    monkeypatch.delenv("EPICS_CAS_SERVER_PORT", raising=False)
+    log_epics_network_config({"interfaces": ["192.0.2.20"]})
+    assert "EPICS_CA_ADDR_LIST=192.0.2.10" in caplog.text
+    assert "EPICS_CAS_SERVER_PORT=<unset; caproto default>" in caplog.text
+    assert "caproto server interfaces=['192.0.2.20']" in caplog.text

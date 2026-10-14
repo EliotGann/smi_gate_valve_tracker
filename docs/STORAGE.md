@@ -74,16 +74,13 @@ the present test in its original location.
 One-time creation on the provisioned deployment volume:
 
 ```bash
-bash /path/to/softioc/start-monitor.sh --mode softioc \
-  --interface IOC_SERVER_IP --beacon-address SUBNET_BROADCAST_IP \
-  --init --window-id "physical-window-001"
+bash /path/to/softioc/start-monitor.sh --init --window-id "physical-window-001"
 ```
 
 Every normal start, including after a window replacement:
 
 ```bash
-bash /path/to/softioc/start-monitor.sh --mode softioc \
-  --interface IOC_SERVER_IP --beacon-address SUBNET_BROADCAST_IP
+bash /path/to/softioc/start-monitor.sh
 ```
 
 Equivalent command from `softioc/`:
@@ -93,6 +90,8 @@ pixi run -e caproto smi-kapton-monitor --config config/commissioning.toml \
   --mode local --database "$HOME/kapton-monitor-beamtime/history.sqlite"
 ```
 
-Storage handling is identical in both modes. `softioc` serves the selected network
+Normal startup inherits the site's EPICS environment; keep host-specific network
+settings in that environment, not the repository. Storage is identical in both modes.
+`softioc` serves the selected network
 interfaces; `local` binds only loopback. Neither automatically moves existing data.
 See [DEPLOYMENT.md](DEPLOYMENT.md) for CA discovery and exact mode options.

@@ -557,8 +557,8 @@ def beamtime_main():  # pragma: no cover - optional CA entry point
             "Serving mode=%s interfaces=%s port=%s beacons=%s",
             args.mode,
             interfaces,
-            args.server_port,
-            os.environ["EPICS_CAS_BEACON_ADDR_LIST"],
+            os.environ.get("EPICS_CAS_SERVER_PORT", "<caproto default>"),
+            os.environ.get("EPICS_CAS_BEACON_ADDR_LIST", "<caproto default>"),
         )
 
         ioc = make_ioc(specs, store=store)(prefix=PREFIX)
@@ -578,7 +578,14 @@ def run_server(pvdb, interfaces):  # pragma: no cover - subprocess transport tes
     """Serve CA and drain acquisition/storage tasks on IOC-manager SIGTERM."""
     import signal
 
+    from caproto import get_server_address_list
     from caproto.asyncio.server import start_server
+
+    from .runtime import log_epics_network_config
+
+    if interfaces is None:
+        interfaces = get_server_address_list()
+    log_epics_network_config({"interfaces": interfaces})
 
     async def serve():
         task = asyncio.create_task(start_server(pvdb, interfaces=interfaces))
